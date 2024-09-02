@@ -1,6 +1,5 @@
 
-
-// import AddBranchForm from "./AddBranchForm";
+import AddBranchDialog from "./AddBranchDialog";
 import { BranchCard } from "./BranchCard";
 
 export default async function AllBranches({ branches }: { 
@@ -22,9 +21,9 @@ export default async function AllBranches({ branches }: {
                     ))
                 }
             </div>
-            {/* <div>
-                <AddBranchForm/>
-            </div> */}
+            <div>
+                <AddBranchDialog/>
+            </div>
         </div>
     );
 }
