@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id            Int         @id @default(autoincrement())
+  name          String
+  email         String      @unique
+  password      String
+  role          Role        @default(ADMIN)
+}
+
+model Student {
+  id            Int               @id @default(autoincrement())
+  name          String
+  email         String            @unique
+  password      String            @default("hello@user")
+  usn           String            @unique
+  branchCode    String
+  branch        Branch            @relation(fields: [branchCode], references: [code])
+  semester      Int
+  role          Role              @default(STUDENT)
+  courses       CourseOfStudent[]
+  teachers      StudentTeacher[]
+}
+
+model Course {
+  id            Int         @id @default(autoincrement())
+  title         String      @unique
+  description   String?
+  courseId      String      @unique
+  students      CourseOfStudent[]
+  teachers      CourseOfTeacher[]
+}
+
+model CourseOfStudent {
+  student       Student     @relation(fields: [usn], references: [usn])
+  usn           String
+  course        Course      @relation(fields: [courseId], references: [courseId])
+  courseId      String
+  @@id([usn, courseId])
+}
+
+model Teacher {
+  id            Int                @id @default(autoincrement())
+  name          String
+  email         String
+  password      String             @default("hello@user")
+  role          Role               @default(TEACHER)
+  branches      BranchTeacher[]
+  courses       CourseOfTeacher[]
+  students      StudentTeacher[]
+}
+
+model Branch {
+  id        Int              @id @default(autoincrement())
+  name      String
+  code      String           @unique
+  students  Student[]
+  teachers  BranchTeacher[]
+}
+
+model BranchTeacher {
+  teacher    Teacher          @relation(fields: [teacherId], references: [id])
+  teacherId  Int
+  branch     Branch           @relation(fields: [branchId], references: [id])
+  branchId   Int
+  @@id([teacherId, branchId])
+}
+
+model CourseOfTeacher {
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  teacherId     Int
+  course        Course      @relation(fields: [courseId], references: [courseId])
+  courseId      String
+  @@id([teacherId, courseId])
+}
+
+model StudentTeacher {
+  student       Student    @relation(fields: [usn], references: [usn])
+  usn           String
+  teacher       Teacher    @relation(fields: [teacherId], references: [id])
+  teacherId     Int
+  @@id([usn, teacherId])
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+  TEACHER
+}
