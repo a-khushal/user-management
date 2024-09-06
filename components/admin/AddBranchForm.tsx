@@ -1,17 +1,8 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,7 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addBranch } from "@/actions/addBranch";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { addBranch } from '@/actions/addBranch';
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   branchName: z.string().min(5, {
@@ -32,7 +26,9 @@ const formSchema = z.object({
   }),
 });
 
-export default function AddBranchDialog() {
+export default function AddBranchForm() {
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,19 +37,29 @@ export default function AddBranchDialog() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     const props = {
-        name: values.branchName,
-        code: values.branchCode
+      name: values.branchName,
+      code: values.branchCode.toUpperCase()
     };
-    const res = addBranch(props);
-    console.log(res);
+    const res = await addBranch(props);
+
+    if (res && res.message) {
+      toast({
+        title: res.message,
+      })
+    } else if (res.error) {
+      toast({
+        title: res.error,
+        variant: "destructive",
+      })
+    }
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">+</Button>
+        <Button variant="default">+ Add</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -90,9 +96,7 @@ export default function AddBranchDialog() {
                 </FormItem>
               )}
             />
-            <DialogTrigger asChild>
-                <Button type="submit">Submit</Button>
-            </DialogTrigger>
+          <Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>Submit</Button>
           </form>
         </Form>
       </DialogContent>
