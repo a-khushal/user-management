@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { addBranch } from '@/actions/addBranch';
 import { useToast } from "@/hooks/use-toast";
+import { PlusCircle } from "lucide-react"
 
 const formSchema = z.object({
   branchName: z.string().min(5, {
@@ -59,7 +60,9 @@ export default function AddBranchForm() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default">+ Add</Button>
+        <Button variant="default">
+          <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -96,7 +99,7 @@ export default function AddBranchForm() {
                 </FormItem>
               )}
             />
-          <Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>Submit</Button>
+            <Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>Submit</Button>
           </form>
         </Form>
       </DialogContent>
