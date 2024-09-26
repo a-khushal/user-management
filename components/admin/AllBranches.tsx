@@ -63,8 +63,9 @@ export default function AllBranches({ branches }: {
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {branches?.map((branch) => (
-            <Dialog key={branch.id}>
-              <DialogTrigger asChild>
+            <div className="cursor-default">
+              <Dialog key={branch.id}>
+                {/* <DialogTrigger asChild> */}
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle>{branch.name}</CardTitle>
@@ -87,54 +88,62 @@ export default function AllBranches({ branches }: {
                     {/* </div> */}
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full">View Students</Button>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" onClick={() => setCode(branch.code)} className="w-full">View Students</Button>
+                    </DialogTrigger>
                   </CardFooter>
                 </Card>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl">
-                <DialogHeader>
-                  <DialogTitle>{branch.name} - Student List</DialogTitle>
-                </DialogHeader>
-                <div className="flex justify-end space-x-2 mb-4">
-                  <Button onClick={handleAddStudent} disabled={isAddingStudent}>
-                    {isAddingStudent ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <UserPlus className="mr-2 h-4 w-4" />
-                    )}
-                    Add Student
-                  </Button>
-                  <Button onClick={handleUpdateStudent} disabled={isUpdatingStudent}>
-                    {isUpdatingStudent ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Pencil className="mr-2 h-4 w-4" />
-                    )}
-                    Update Students
-                  </Button>
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Semester</TableHead>
-                      <TableHead>USN</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {!students.error ? students.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.email}</TableCell>
-                        <TableCell>{student.semester}</TableCell>
-                        <TableCell>{student.usn}</TableCell>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>{branch.name} - Student List</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-end space-x-2 mb-4">
+                    <Button onClick={handleAddStudent} disabled={isAddingStudent}>
+                      {isAddingStudent ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <UserPlus className="mr-2 h-4 w-4" />
+                      )}
+                      Add Student
+                    </Button>
+                    <Button onClick={handleUpdateStudent} disabled={isUpdatingStudent}>
+                      {isUpdatingStudent ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Pencil className="mr-2 h-4 w-4" />
+                      )}
+                      Update Students
+                    </Button>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Semester</TableHead>
+                        <TableHead>USN</TableHead>
                       </TableRow>
-                    )) : students.error}
-                  </TableBody>
-                </Table>
-              </DialogContent>
-            </Dialog>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.isArray(students) ? (
+                        students.map((student) => (
+                          <TableRow key={student.usn}>
+                            <TableCell>{student.name}</TableCell>
+                            <TableCell>{student.email}</TableCell>
+                            <TableCell>{student.semester}</TableCell>
+                            <TableCell>{student.usn}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4}>{students.error}</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </DialogContent>
+              </Dialog>
+            </div>
           ))}
         </div>
       </div>
