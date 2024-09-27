@@ -308,21 +308,24 @@ export const LogoIcon = () => {
 
 const MainContent = ({ extractedCourses }: { extractedCourses: CourseType[] }) => {
   return (
-    <div className="flex flex-1">
-      <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-        <CoursesCard extractedCourses={extractedCourses} />
+    <div className="w-screen">
+      {/* <CoursesCard extractedCourses={extractedCourses} /> */}
+      <div className="sm:pt-10 sm:px-5 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 gap-2 w-full h-screen">
+        <div className=""><CoursesCard extractedCourses={extractedCourses} /></div>
         <Separator className="my-4" orientation="horizontal" />
       </div>
+      {/* <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full"> */}
+      {/* </div> */}
     </div>
   );
 };
 
 const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) => {
-  return <div className="max-w-7xl mx-auto">
+  return <div className="mx-auto">
     <Tabs defaultValue="courses" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="courses">Courses</TabsTrigger>
-        <TabsTrigger value="quizzes">Upcoming Quizzes</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 mb-4 ml-1">
+        <TabsTrigger value="courses" className="data-[state=active]:bg-primary rounded-xl data-[state=active]:text-primary-foreground shadow border mr-2 p-1">Courses</TabsTrigger>
+        <TabsTrigger value="quizzes" className="data-[state=active]:bg-primary rounded-xl data-[state=active]:text-primary-foreground shadow border ml-2 p-1">Upcoming Quizzes</TabsTrigger>
       </TabsList>
       <TabsContent value="courses">
         <Card>
@@ -331,12 +334,19 @@ const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
             <CardDescription>Courses you are currently enrolled in</CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[300px] md:h-[400px]">
-              <ul className="space-y-4">
+            <ScrollArea className="h-[300px] md:h-[400px] overflow-y-auto 
+              [&::-webkit-scrollbar]:w-2
+              [&::-webkit-scrollbar-track]:rounded-full
+              [&::-webkit-scrollbar-track]:bg-gray-100
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              [&::-webkit-scrollbar-thumb]:bg-gray-300
+              dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+              dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+              <ul className="space-y-4 mr-2">
                 {extractedCourses.map((course) => (
-                  <li key={course.courseId} className="bg-gray-50 p-4 rounded-md shadow">
-                    <h3 className="font-semibold text-lg">{course.description}</h3>
-                    <p className="text-sm text-gray-600">Instructor: "John Doe"</p>
+                  <li key={course.courseId} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
+                    <h3 className="font-semibold text-lg">{course.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: "John Doe"</p>
                     <Button variant="outline" size="sm" className="mt-2">
                       View Details
                     </Button>
@@ -347,28 +357,28 @@ const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
           </CardContent>
         </Card>
       </TabsContent>
-      {/* <TabsContent value="quizzes"> */}
-      {/*   <Card> */}
-      {/*     <CardHeader> */}
-      {/*       <CardTitle>Upcoming Quizzes</CardTitle> */}
-      {/*       <CardDescription>Scheduled quizzes for your courses</CardDescription> */}
-      {/*     </CardHeader> */}
-      {/*     <CardContent> */}
-      {/*       <ul className="space-y-4"> */}
-      {/*         {upcomingQuizzes.map((quiz) => ( */}
-      {/*           <li key={quiz.id} className="bg-gray-50 p-4 rounded-md shadow"> */}
-      {/*             <h3 className="font-semibold text-lg">{quiz.name}</h3> */}
-      {/*             <p className="text-sm text-gray-600">Course: {quiz.course}</p> */}
-      {/*             <p className="text-sm text-gray-600">Date: {quiz.date}</p> */}
-      {/*             <Button variant="outline" size="sm" className="mt-2"> */}
-      {/*               Prepare for Quiz */}
-      {/*             </Button> */}
-      {/*           </li> */}
-      {/*         ))} */}
-      {/*       </ul> */}
-      {/*     </CardContent> */}
-      {/*   </Card> */}
-      {/* </TabsContent> */}
+      <TabsContent value="quizzes">
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Quizzes</CardTitle>
+            <CardDescription>Scheduled quizzes for your courses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-4">
+              {/* {upcomingQuizzes.map((quiz) => ( */}
+              {/*   <li key={quiz.id} className="bg-gray-50 p-4 rounded-md shadow"> */}
+              {/*     <h3 className="font-semibold text-lg">{quiz.name}</h3> */}
+              {/*     <p className="text-sm text-gray-600">Course: {quiz.course}</p> */}
+              {/*     <p className="text-sm text-gray-600">Date: {quiz.date}</p> */}
+              {/*     <Button variant="outline" size="sm" className="mt-2"> */}
+              {/*       Prepare for Quiz */}
+              {/*     </Button> */}
+              {/*   </li> */}
+              {/* ))} */}
+            </ul>
+          </CardContent>
+        </Card>
+      </TabsContent>
     </Tabs>
   </div>
 }
