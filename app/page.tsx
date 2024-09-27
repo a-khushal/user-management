@@ -1,7 +1,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "./authStore/auth";
-import StudentDashboard from "@/components/StudentDashboard";
+import StudentDashboard from "@/components/student/StudentDashboard";
 import { Appbar } from "@/components/Appbar";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 

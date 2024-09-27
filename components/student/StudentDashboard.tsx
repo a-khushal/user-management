@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/authStore/auth"
 import { getServerSession } from "next-auth"
-import db from "../db/index"
+import db from "../../db/index"
 import { SidebarComponent } from "./Sidebar";
 import { CourseDetailsType } from "@/types/courseDetails";
 

@@ -8,11 +8,10 @@ import { CourseDetailsType } from "@/types/courseDetails";
 import { Separator } from "@radix-ui/react-separator";
 import { CourseType } from "@/types/course";
 import { signOut } from "next-auth/react";
-// import { Card } from "./Card";
 import { cn } from "@/lib/utils";
-import { CardHeader, Card, CardTitle, CardDescription, CardContent } from "./ui/card";
+import { CardHeader, Card, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 
 interface Links {
@@ -346,7 +345,7 @@ const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
                 {extractedCourses.map((course) => (
                   <li key={course.courseId} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
                     <h3 className="font-semibold text-lg">{course.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: "John Doe"</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: John Doe</p>
                     <Button variant="outline" size="sm" className="mt-2">
                       View Details
                     </Button>
