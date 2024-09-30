@@ -29,16 +29,15 @@ export default function AllBranches({ branches }: {
   const [students, setStudents] = useState<Student[] | { error: string }>();
   const [code, setCode] = useState("");
 
-  const handleDownloadTemplate = (type: any) => {
-    // In a real application, this would generate and download an Excel file
-    // For this example, we'll just simulate the download
-    setIsProcessing(true)
-    setProcessingType(type)
-    setTimeout(() => {
-      setIsProcessing(false)
-      setProcessingType("")
-      alert(`${type} template downloaded successfully!`)
-    }, 2000)
+  const handleDownloadTemplate = () => {
+    window.location.href = "/admin/addnewstudents.xls";
+    // setIsProcessing(true)
+    // setProcessingType(type)
+    // setTimeout(() => {
+    //   setIsProcessing(false)
+    //   setProcessingType("")
+    //   alert(`${type} template downloaded successfully!`)
+    // }, 2000)
   }
 
   const handleFileUpload = (event: any, type: any) => {
@@ -98,7 +97,7 @@ export default function AllBranches({ branches }: {
                       {/* </div> */}
                       <div className="flex items-center mb-2">
                         <BookOpen className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span>{branch.code} Courses</span>
+                        <span>{branch.code}</span>
                       </div>
                       {/* <div className="flex items-center"> */}
                       {/*   <MapPin className="mr-2 h-4 w-4 text-muted-foreground" /> */}
@@ -125,12 +124,12 @@ export default function AllBranches({ branches }: {
                             Download the template, fill it with student data, and upload to add new students.
                           </p>
                           <div className="flex flex-col space-y-2">
-                            <Button onClick={() => handleDownloadTemplate("Add")} disabled={isProcessing}>
-                              {isProcessing && processingType === "Add" ? (
-                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                              ) : (
-                                <Download className="mr-2 h-4 w-4" />
-                              )}
+                            <Button onClick={() => handleDownloadTemplate()}>
+                              {/* {isProcessing && processingType === "Add" ? ( */}
+                              {/*   <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> */}
+                              {/* ) : ( */}
+                              <Download className="mr-2 h-4 w-4" />
+                              {/* )} */}
                               Download Template
                             </Button>
                             <Button onClick={() => triggerFileInput("Add")} disabled={isProcessing}>
@@ -153,7 +152,7 @@ export default function AllBranches({ branches }: {
                             Download the current student data, update it, and upload to apply changes.
                           </p>
                           <div className="flex flex-col space-y-2">
-                            <Button onClick={() => handleDownloadTemplate("Update")} disabled={isProcessing}>
+                            <Button onClick={() => handleDownloadTemplate()} disabled={isProcessing}>
                               {isProcessing && processingType === "Update" ? (
                                 <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                               ) : (
@@ -205,7 +204,7 @@ export default function AllBranches({ branches }: {
             ))}
           </div>
         </div>
-      </main>
+      </main >
       <input
         type="file"
         ref={fileInputRef}
@@ -213,6 +212,6 @@ export default function AllBranches({ branches }: {
         onChange={(e) => handleFileUpload(e, processingType)}
         accept=".xlsx,.xls"
       />
-    </div>
+    </div >
   );
 }
