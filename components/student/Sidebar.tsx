@@ -14,6 +14,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { string } from "zod";
+import { useRouter } from "next/navigation";
 
 interface Links {
   label: string;
@@ -307,7 +308,7 @@ export const LogoIcon = () => {
   );
 };
 
-const MainContent = ({ extractedCourses,name }: { extractedCourses: CourseType[], name:String }) => {
+const MainContent = ({ extractedCourses, name }: { extractedCourses: CourseType[], name: String }) => {
   return (
     <div className="w-screen">
       {/* <CoursesCard extractedCourses={extractedCourses} /> */}
@@ -321,7 +322,8 @@ const MainContent = ({ extractedCourses,name }: { extractedCourses: CourseType[]
   );
 };
 
-const CoursesCard = ({ extractedCourses,name }: { extractedCourses: CourseType[],name:String }) => {
+const CoursesCard = ({ extractedCourses, name }: { extractedCourses: CourseType[], name: String }) => {
+  const router = useRouter();
   return <div className="mx-auto">
     <Tabs defaultValue="courses" className="w-full">
       <TabsList className="grid w-full grid-cols-2 mb-4 ml-1">
@@ -348,11 +350,9 @@ const CoursesCard = ({ extractedCourses,name }: { extractedCourses: CourseType[]
                   <li key={course.courseId} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
                     <h3 className="font-semibold text-lg">{course.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: John Doe</p>
-                    <Link href={'dashboard'} >
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")} className="mt-2">
                       View Details
                     </Button>
-                    </Link>
                   </li>
                 ))}
               </ul>
