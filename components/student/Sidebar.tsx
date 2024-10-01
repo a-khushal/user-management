@@ -13,6 +13,7 @@ import { CardHeader, Card, CardTitle, CardDescription, CardContent } from "../ui
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { string } from "zod";
 
 interface Links {
   label: string;
@@ -31,6 +32,7 @@ const SidebarContext = createContext<SidebarContextProps | undefined>(
   undefined
 );
 
+//exports function for sidebar 
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
@@ -39,6 +41,7 @@ export const useSidebar = () => {
   return context;
 };
 
+//sidebarprovider 
 export const SidebarProvider = ({
   children,
   open: openProp,
@@ -204,11 +207,10 @@ export function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType
   const courses: { course: CourseType }[] = allCourses.courses;
   const extractedCourses = courses.map((item) => item.course);
   const studentName: string = allCourses.name;
-
   const links = [
     {
       label: "Dashboard",
-      href: "",
+      href: "dashboard",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -272,7 +274,7 @@ export function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType
             />
           </div>
         </SidebarBody>
-        <MainContent extractedCourses={extractedCourses} />
+        <MainContent extractedCourses={extractedCourses} name={studentName} />
       </Sidebar>
     </div>
   );
@@ -305,12 +307,12 @@ export const LogoIcon = () => {
   );
 };
 
-const MainContent = ({ extractedCourses }: { extractedCourses: CourseType[] }) => {
+const MainContent = ({ extractedCourses,name }: { extractedCourses: CourseType[], name:String }) => {
   return (
     <div className="w-screen">
       {/* <CoursesCard extractedCourses={extractedCourses} /> */}
       <div className="sm:pt-10 sm:px-5 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 gap-2 w-full h-screen">
-        <div className=""><CoursesCard extractedCourses={extractedCourses} /></div>
+        <div className=""><CoursesCard extractedCourses={extractedCourses} name={name} /></div>
         <Separator className="my-4" orientation="horizontal" />
       </div>
       {/* <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full"> */}
@@ -319,7 +321,7 @@ const MainContent = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
   );
 };
 
-const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) => {
+const CoursesCard = ({ extractedCourses,name }: { extractedCourses: CourseType[],name:String }) => {
   return <div className="mx-auto">
     <Tabs defaultValue="courses" className="w-full">
       <TabsList className="grid w-full grid-cols-2 mb-4 ml-1">
@@ -329,7 +331,7 @@ const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
       <TabsContent value="courses">
         <Card>
           <CardHeader>
-            <CardTitle>Your Courses</CardTitle>
+            <CardTitle>Welcome {name}</CardTitle>
             <CardDescription>Courses you are currently enrolled in</CardDescription>
           </CardHeader>
           <CardContent>
@@ -346,9 +348,11 @@ const CoursesCard = ({ extractedCourses }: { extractedCourses: CourseType[] }) =
                   <li key={course.courseId} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
                     <h3 className="font-semibold text-lg">{course.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: John Doe</p>
+                    <Link href={'dashboard'} >
                     <Button variant="outline" size="sm" className="mt-2">
                       View Details
                     </Button>
+                    </Link>
                   </li>
                 ))}
               </ul>
