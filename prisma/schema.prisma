@@ -49,6 +49,7 @@ model CourseOfStudent {
 model Teacher {
   id            Int                @id @default(autoincrement())
   name          String
+  initial       String             @unique
   email         String             @unique
   password      String             @default("hello@user")
   role          Role               @default(TEACHER)
@@ -66,19 +67,19 @@ model Branch {
 }
 
 model BranchTeacher {
-  teacher    Teacher          @relation(fields: [teacherId], references: [id])
-  teacherId  Int
-  branch     Branch           @relation(fields: [branchId], references: [id])
-  branchId   Int
-  @@id([teacherId, branchId])
+  teacher             Teacher          @relation(fields: [teacherInitial], references: [initial])
+  teacherInitial      String
+  branch              Branch           @relation(fields: [branchCode], references: [code])
+  branchCode          String
+  @@id([teacherInitial, branchCode])
 }
 
 model CourseOfTeacher {
-  teacher       Teacher     @relation(fields: [teacherId], references: [id])
-  teacherId     Int
-  course        Course      @relation(fields: [courseId], references: [courseId])
-  courseId      String
-  @@id([teacherId, courseId])
+  teacher             Teacher     @relation(fields: [teacherInitial], references: [initial])
+  teacherInitial      String
+  course              Course      @relation(fields: [courseId], references: [courseId])
+  courseId            String
+  @@id([teacherInitial, courseId])
 }
 
 model StudentTeacher {

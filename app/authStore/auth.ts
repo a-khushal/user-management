@@ -46,6 +46,7 @@ export const authOptions = {
             id: teacher.id.toString(),
             name: teacher.name,
             email: teacher.email,
+            initial: teacher.initial,
             role: teacher.role || 'teacher',
           }
         }
@@ -60,8 +61,10 @@ export const authOptions = {
   callbacks: {
     jwt: async ({ token, user }: any) => {
       if (user) {
+        console.log(user)
         token.name = user.name;
         token.role = user.role;
+        token.initial = user.initial
       }
       return token;
     },
@@ -70,6 +73,7 @@ export const authOptions = {
         session.user.name = token.name;
         session.user.id = token.sub;
         session.user.role = token.role;
+        session.user.initial = token.initial;
       }
       return session;
     },
