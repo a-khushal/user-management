@@ -13,6 +13,7 @@ import { BranchTeacher } from '@/types/branchTeacher';
 import { FullLoader } from '../ui/full-loader';
 import { fetchCourses } from '@/actions/fetchCourses';
 import { CourseTeacher } from '@/types/courseTeacher';
+import { Appbar } from '../Appbar';
 
 const courses = [
   { id: 1, branchId: 1, name: "Introduction to Programming", code: "CS101", students: 60 },
@@ -52,9 +53,7 @@ export default function TeacherDashboard() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="bg-primary text-primary-foreground py-4 px-6">
-        <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
-      </header>
+      <div className=''><Appbar /></div>
       {loading ? <FullLoader /> : (
         <main className="flex-grow p-6 bg-background">
           <div className="max-w-7xl mx-auto">
@@ -87,19 +86,19 @@ export default function TeacherDashboard() {
                             <TableRow>
                               <TableHead>Course Name</TableHead>
                               <TableHead>Course Code</TableHead>
-                              <TableHead>Students</TableHead>
+                              {/* <TableHead>Students</TableHead> */}
                               <TableHead>Action</TableHead>
                             </TableRow>
                           </TableHeader>
                           {Array.isArray(teacherCourses) ? (
                             <TableBody>
-                              {teacherCourses.map((payload) => (
-                                <TableRow key={payload.courseId}>
-                                  <TableCell>{payload.course.title}</TableCell>
-                                  <TableCell>{payload.course.courseId}</TableCell>
-                                  <TableCell>{50}</TableCell>
+                              {teacherCourses.map((data) => (
+                                <TableRow key={data.courseId}>
+                                  <TableCell>{data.course.title}</TableCell>
+                                  <TableCell>{data.course.courseId}</TableCell>
+                                  {/* <TableCell>{50}</TableCell> */}
                                   <TableCell>
-                                    <Link href={`/teacher-dashboard/course/${payload.courseId}`} passHref>
+                                    <Link href={`/course/${data.courseId}/${payload.branchCode}`} passHref>
                                       <Button variant="outline" size="sm">View Course</Button>
                                     </Link>
                                   </TableCell>

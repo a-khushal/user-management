@@ -15,11 +15,11 @@ export async function fetchCourses({ initial }: {
             courseId: true,
             title: true,
             description: true,
-          }
+          },
         },
       }
     });
-    console.log(payload);
+    // console.log(payload[0].course._count);
     return {
       payload
     };
