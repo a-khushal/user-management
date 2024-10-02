@@ -13,7 +13,6 @@ interface TestResult {
 }
 
 interface DashboardProps {
-  subjectId:string
   subject: string
   overallScore: number
   testResults: TestResult[]
@@ -30,7 +29,7 @@ const Component: React.FC<DashboardProps> = ({
   ]
 }) => {
   const averageScore = Math.round(testResults.reduce((acc, test) => acc + (test.score / test.totalMarks) * 100, 0) / testResults.length)
-  
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold text-center mb-6">{subject} Dashboard</h1>

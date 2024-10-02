@@ -15,7 +15,10 @@ import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { string } from "zod";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
+=======
 
+>>>>>>> 5c29a131f9abec63ff69535ca14e8455e8a173b7
 interface Links {
   label: string;
   href: string;
@@ -208,10 +211,14 @@ export function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType
   const courses: { course: CourseType }[] = allCourses.courses;
   const extractedCourses = courses.map((item) => item.course);
   const studentName: string = allCourses.name;
+  const usn=allCourses.usn;
+
+  
+
   const links = [
     {
       label: "Dashboard",
-      href: "dashboard",
+      href: "profiledashboard",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -275,7 +282,7 @@ export function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType
             />
           </div>
         </SidebarBody>
-        <MainContent extractedCourses={extractedCourses} name={studentName} />
+        <MainContent extractedCourses={extractedCourses} name={studentName} usn={usn}/>
       </Sidebar>
     </div>
   );
@@ -308,12 +315,12 @@ export const LogoIcon = () => {
   );
 };
 
-const MainContent = ({ extractedCourses, name }: { extractedCourses: CourseType[], name: String }) => {
+const MainContent = ({ extractedCourses,name,usn }: { extractedCourses: CourseType[], name:String,usn:string }) => {
   return (
     <div className="w-screen">
       {/* <CoursesCard extractedCourses={extractedCourses} /> */}
       <div className="sm:pt-10 sm:px-5 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 gap-2 w-full h-screen">
-        <div className=""><CoursesCard extractedCourses={extractedCourses} name={name} /></div>
+        <div className=""><CoursesCard extractedCourses={extractedCourses} name={name} usn={usn}/></div>
         <Separator className="my-4" orientation="horizontal" />
       </div>
       {/* <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full"> */}
@@ -322,8 +329,12 @@ const MainContent = ({ extractedCourses, name }: { extractedCourses: CourseType[
   );
 };
 
-const CoursesCard = ({ extractedCourses, name }: { extractedCourses: CourseType[], name: String }) => {
-  const router = useRouter();
+const CoursesCard = ({ extractedCourses,name,usn }: { extractedCourses: CourseType[],name:String ,usn:string}) => {
+  const router=useRouter();
+
+  const handleClick=(id:string,usn:string)=>{
+    router.push(`dashboard`)
+  }
   return <div className="mx-auto">
     <Tabs defaultValue="courses" className="w-full">
       <TabsList className="grid w-full grid-cols-2 mb-4 ml-1">
@@ -350,9 +361,10 @@ const CoursesCard = ({ extractedCourses, name }: { extractedCourses: CourseType[
                   <li key={course.courseId} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
                     <h3 className="font-semibold text-lg">{course.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Instructor: John Doe</p>
-                    <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")} className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-2" onClick={()=>handleClick(course.courseId,usn)}>
                       View Details
                     </Button>
+                    
                   </li>
                 ))}
               </ul>
