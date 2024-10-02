@@ -15,6 +15,10 @@ import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { string } from "zod";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5c29a131f9abec63ff69535ca14e8455e8a173b7
 interface Links {
   label: string;
   href: string;

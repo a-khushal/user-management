@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { BranchTeacher } from '@/types/branchTeacher';
 import { FullLoader } from '../ui/full-loader';
+import { fetchCourses } from '@/actions/fetchCourses';
+import { CourseTeacher } from '@/types/courseTeacher';
 
 const courses = [
   { id: 1, branchId: 1, name: "Introduction to Programming", code: "CS101", students: 60 },
@@ -23,6 +25,7 @@ const courses = [
 
 export default function TeacherDashboard() {
   const [branchTeacher, setBranchTeacher] = useState<BranchTeacher[] | { error: string }>();
+  const [teacherCourses, setTeacherCourses] = useState<CourseTeacher[] | { error: string }>();
   const [loading, setLoading] = useState(true);
   const session = useSession();
   // @ts-ignore
@@ -30,9 +33,18 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     async function main() {
-      const val = await teacherBranch({ initial: teacherInitial });
-      setBranchTeacher(val.payload);
+      const v1 = await teacherBranch({ initial: teacherInitial });
+      setBranchTeacher(v1.payload);
       setLoading(false);
+    }
+
+    main();
+  }, [teacherInitial]);
+
+  useEffect(() => {
+    async function main() {
+      const v2 = await fetchCourses({ initial: teacherInitial });
+      setTeacherCourses(v2.payload);
     }
 
     main();
@@ -79,27 +91,29 @@ export default function TeacherDashboard() {
                               <TableHead>Action</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
-                            {courses.filter(course => course.branchId === 1).map((course) => (
-                              <TableRow key={course.id}>
-                                <TableCell>{course.name}</TableCell>
-                                <TableCell>{course.code}</TableCell>
-                                <TableCell>{course.students}</TableCell>
-                                <TableCell>
-                                  <Link href={`/teacher-dashboard/course/${course.id}`} passHref>
-                                    <Button variant="outline" size="sm">View Course</Button>
-                                  </Link>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
+                          {Array.isArray(teacherCourses) ? (
+                            <TableBody>
+                              {teacherCourses.map((payload) => (
+                                <TableRow key={payload.courseId}>
+                                  <TableCell>{payload.course.title}</TableCell>
+                                  <TableCell>{payload.course.courseId}</TableCell>
+                                  <TableCell>{50}</TableCell>
+                                  <TableCell>
+                                    <Link href={`/teacher-dashboard/course/${payload.courseId}`} passHref>
+                                      <Button variant="outline" size="sm">View Course</Button>
+                                    </Link>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          ) : <p>An error occured.</p>}
                         </Table>
                       </div>
                     </DialogContent>
                   </Dialog>
                 ))
               ) : (
-                <p>No branches found.</p>
+                <p>An error occured while fetching the data.</p>
               )}
             </div>
           </div>
