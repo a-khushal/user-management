@@ -83,11 +83,11 @@ model CourseOfTeacher {
 }
 
 model StudentTeacher {
-  student       Student    @relation(fields: [usn], references: [usn])
-  usn           String
-  teacher       Teacher    @relation(fields: [teacherId], references: [id])
-  teacherId     Int
-  @@id([usn, teacherId])
+  student           Student    @relation(fields: [usn], references: [usn])
+  usn               String
+  teacher           Teacher    @relation(fields: [teacherInitial], references: [initial])
+  teacherInitial    String
+  @@id([usn, teacherInitial])
 }
 
 enum Role {
