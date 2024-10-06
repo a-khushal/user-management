@@ -43,7 +43,7 @@ model CourseOfStudent {
   usn           String
   course        Course      @relation(fields: [courseId], references: [courseId])
   courseId      String
-  @@id([usn, courseId])
+  @@unique([usn, courseId])
 }
 
 model Teacher {
@@ -71,7 +71,7 @@ model BranchTeacher {
   teacherInitial      String
   branch              Branch           @relation(fields: [branchCode], references: [code])
   branchCode          String
-  @@id([teacherInitial, branchCode])
+  @@unique([teacherInitial, branchCode])
 }
 
 model CourseOfTeacher {
@@ -79,7 +79,7 @@ model CourseOfTeacher {
   teacherInitial      String
   course              Course      @relation(fields: [courseId], references: [courseId])
   courseId            String
-  @@id([teacherInitial, courseId])
+  @@unique([teacherInitial, courseId])
 }
 
 model StudentTeacher {
@@ -87,8 +87,56 @@ model StudentTeacher {
   usn               String
   teacher           Teacher    @relation(fields: [teacherInitial], references: [initial])
   teacherInitial    String
-  @@id([usn, teacherInitial])
+  @@unique([usn, teacherInitial])
 }
+
+model Quiz {
+  id           Int       @id @default(autoincrement())
+  title        String    
+  description  String? 
+  duration     Int    
+  startTime     DateTime  
+  endTime       DateTime?
+  totalQuestions Int     
+  createdAt    DateTime  @default(now())
+  questions    Question[] 
+  randomize    Boolean   @default(false) 
+}
+
+model Question {
+  id          Int      @id @default(autoincrement())
+  text        String   
+  type        QuestionType 
+  score       Int      
+  quizId      Int      
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  options     Option[] 
+  correctAnswer Option[] 
+}
+
+model QuizTeacher {
+  id         Int      @id @default(autoincrement())   
+  quizId     Int     
+  teacher             Teacher          @relation(fields: [teacherInitial], references: [initial])
+  teacherInitial      String
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  @@unique([teacherInitial, quizId]) 
+}
+
+model QuizStudent {
+  id         Int      @id @default(autoincrement())
+  studentId  Int      
+  quizId     Int     
+  student    Student  @relation(fields: [studentUsn], references: [usn])
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  score      Int?    
+  attempts   Int?     
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([studentUsn, quizId]) 
+}
+
 
 enum Role {
   ADMIN
