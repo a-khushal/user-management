@@ -19,10 +19,7 @@ export async function fetchCourses({ initial }: {
         },
       }
     });
-    // console.log(payload[0].course._count);
-    return {
-      payload
-    };
+    return payload
   } catch (e) {
     console.log(e);
     return {

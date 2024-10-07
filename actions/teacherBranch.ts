@@ -25,10 +25,7 @@ export async function teacherBranch({ initial }: {
         }
       }
     });
-
-    return {
-      payload
-    };
+    return payload
   } catch (e) {
     console.log(e);
     return {

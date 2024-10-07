@@ -23,7 +23,6 @@ export const fetchStudents = async ({ branchCode, teacherInitial }: {
         }
       }
     });
-    console.log(payload);
     return {
       payload
     }
