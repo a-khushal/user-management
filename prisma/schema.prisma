@@ -56,6 +56,7 @@ model Teacher {
   branches      BranchTeacher[]
   courses       CourseOfTeacher[]
   students      StudentTeacher[]
+  quizzes       Quiz[] 
 }
 
 model Branch {
@@ -91,52 +92,16 @@ model StudentTeacher {
 }
 
 model Quiz {
-  id           Int       @id @default(autoincrement())
-  title        String    
-  description  String? 
-  duration     Int    
-  startTime     DateTime  
-  endTime       DateTime?
-  totalQuestions Int     
-  createdAt    DateTime  @default(now())
-  questions    Question[] 
-  randomize    Boolean   @default(false) 
+  id              Int           @id @default(autoincrement())
+  title           String
+  duration        Int           @default(10)
+  date            DateTime
+  startTime       DateTime
+  totalQuestions  Int           // number of questions that each student gets to answer
+  // questions       Question[]
+  teacherInitial  String
+  teacher         Teacher       @relation(fields: [teacherInitial], references: [initial])
 }
-
-model Question {
-  id          Int      @id @default(autoincrement())
-  text        String   
-  type        QuestionType 
-  score       Int      
-  quizId      Int      
-  quiz        Quiz     @relation(fields: [quizId], references: [id])
-  options     Option[] 
-  correctAnswer Option[] 
-}
-
-model QuizTeacher {
-  id         Int      @id @default(autoincrement())   
-  quizId     Int     
-  teacher             Teacher          @relation(fields: [teacherInitial], references: [initial])
-  teacherInitial      String
-  quiz       Quiz     @relation(fields: [quizId], references: [id])
-  @@unique([teacherInitial, quizId]) 
-}
-
-model QuizStudent {
-  id         Int      @id @default(autoincrement())
-  studentId  Int      
-  quizId     Int     
-  student    Student  @relation(fields: [studentUsn], references: [usn])
-  quiz       Quiz     @relation(fields: [quizId], references: [id])
-  score      Int?    
-  attempts   Int?     
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([studentUsn, quizId]) 
-}
-
 
 enum Role {
   ADMIN
