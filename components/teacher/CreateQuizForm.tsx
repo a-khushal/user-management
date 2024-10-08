@@ -10,28 +10,17 @@ import { title } from "process"
 import { useSession } from "next-auth/react"
 import { getServerSession } from "next-auth"
 import { Teacher } from "@prisma/client"
+import { toast, useToast } from "@/hooks/use-toast"
 
-interface User {
-  name: string;
-  email: string;
-  id: string;
-  role: string;
-  initial: string;
-}
-
-interface SessionData {
-  user: User;
-  expires: string;
-}
-
-interface Session {
-  data?: SessionData;
-  status: string;
+interface props{
+  courseId:string,
+  branch:string
 }
 
 
-export function CreateQuizForm() {
+export function CreateQuizForm({courseId,branch}:props) {
   const session = useSession();
+  const {toast}=useToast();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
   const [quizTime, setQuizTime] = useState("")
@@ -53,31 +42,35 @@ export function CreateQuizForm() {
       const dateTime = `${quizDate}T${quizTime}:00`;
       const quizdate = new Date(quizDate);
       const time = new Date(dateTime);
-      const teacher: Teacher = session.data?.user;
+      //@ts-ignore
+      const teacher: Teacher['initial'] = session.data?.user?.initial;
       const result = await createQuiz({
         title: quizName,
         date: quizdate,
         startTime: time,
         totalQuestions: 10,
-        teacher: teacher
+        teacher: teacher,
+        course:courseId,
+        branch:branch
       })
 
-      if (result.error) {
-        //    console.log(result.error);
-        alert('Error occurred during quiz creation');
-      } else {
-        // console.log(result.message);
-        alert('Quiz created successfully');
+      if (result&&result.message) {
+        toast({
+          title:result.message,
+        })
+      } else if(result.error) {
+        toast({
+          title:result.error,
+          variant:"destructive",
+        })
       }
-    } else {
-      alert('Please fill all fields');
     }
   };
 
   return (
     <form action={() => { }} className="space-y-4">
       <div>
-        {JSON.stringify(session.data?.user?.initial)}
+        {/* {JSON.stringify(session.data?.user?.initial)} */}
         <Label htmlFor="quizName">Quiz Name</Label>
         <Input
           id="quizName"

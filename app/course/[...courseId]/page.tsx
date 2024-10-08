@@ -42,11 +42,11 @@ export default async function CourseDetails({ params }: { params: { courseId: st
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
     redirect('/');
   }
-
+  const course=params.courseId[0];
   const branchCode = params.courseId[1];
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
-  const upcomingQuizzes = await fetchQuiz(initial);
+  const upcomingQuizzes = await fetchQuiz({initial,course,branch:branchCode});
   const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
     // Server-side action to handle quiz creation
     console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
@@ -140,7 +140,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                       <DialogHeader>
                         <DialogTitle>Create New Quiz</DialogTitle>
                       </DialogHeader>
-                      <CreateQuizForm />
+                      <CreateQuizForm courseId={course} branch={branchCode} />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -168,6 +168,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   <TableHead className="text-right">Action</TableHead>
                                 </TableRow>
                               </TableHeader>
+                              {Array.isArray(upcomingQuizzes) ? (
                               <TableBody>
                                 {upcomingQuizzes.map((quiz) => (
                                   <TableRow key={quiz.id}>
@@ -187,6 +188,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   </TableRow>
                                 ))}
                               </TableBody>
+                              ) : <p>An error occurred</p>}
                             </Table>
                           </div>
                         </div>

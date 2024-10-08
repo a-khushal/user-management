@@ -3,13 +3,18 @@
 import { revalidatePath } from "next/cache";
 import db from "../../db";
 import { Teacher } from "@prisma/client";
+import { Course } from "@prisma/client";
+import { Branch } from "@prisma/client";
+import { connect } from "http2";
 
-export async function createQuiz({ title, date, startTime, totalQuestions, teacher }: {
+export async function createQuiz({ title, date, startTime, totalQuestions, teacher,course,branch }: {
   title: string,
   date: Date,
   startTime: Date,
   totalQuestions: number,
-  teacher: Teacher
+  teacher: Teacher['initial'],
+  course:Course['courseId'],
+  branch:Branch['code']
 }) {
 
   try {
@@ -19,8 +24,14 @@ export async function createQuiz({ title, date, startTime, totalQuestions, teach
         date: date,
         startTime: startTime,
         totalQuestions: totalQuestions,
-        teacher: {
-          connect: { initial: teacher.initial }
+        teacher:{
+          connect:{initial:teacher}
+        },
+        course:{
+          connect:{courseId:course}
+        },
+        branch:{
+          connect:{code:branch}
         }
       }
     })
