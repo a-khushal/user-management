@@ -14,6 +14,7 @@ import { getServerSession } from 'next-auth';
 import { fetchStudents } from '@/actions/teacher/fetchStudents';
 import { authOptions } from '@/app/authStore/auth';
 import { CreateQuizForm } from '@/components/teacher/CreateQuizForm';
+import { fetchQuiz } from '@/actions/teacher/fetchQuiz';
 
 const previousQuizzes = [
   { id: 1, name: "Math Quiz", date: "2023-05-15", participants: 25, avgScore: 85 },
@@ -25,28 +26,27 @@ const previousQuizzes = [
   { id: 12, name: "Computer Science Quiz", date: "2023-06-05", participants: 35, avgScore: 92 },
 ]
 
-const upcomingQuizzes = [
-  { id: 3, name: "History Quiz", date: "2023-06-05", time: "14:00", participants: 20 },
-  { id: 4, name: "English Quiz", date: "2023-06-10", time: "10:30", participants: 28 },
-  { id: 6, name: "Physics Quiz", date: "2023-06-15", time: "15:45", participants: 18 },
-  { id: 9, name: "Chemistry Quiz", date: "2023-06-20", time: "11:00", participants: 25 },
-  { id: 10, name: "Biology Quiz", date: "2023-06-25", time: "13:30", participants: 22 },
-  { id: 13, name: "Economics Quiz", date: "2023-06-30", time: "09:00", participants: 30 },
-  { id: 14, name: "Psychology Quiz", date: "2023-07-05", time: "14:15", participants: 27 },
-]
+// const upcomingQuizzes = [
+//   // { id: 3, name: "History Quiz", date: "2023-06-05", time: "14:00", participants: 20 },
+//   // { id: 4, name: "English Quiz", date: "2023-06-10", time: "10:30", participants: 28 },
+//   // { id: 6, name: "Physics Quiz", date: "2023-06-15", time: "15:45", participants: 18 },
+//   // { id: 9, name: "Chemistry Quiz", date: "2023-06-20", time: "11:00", participants: 25 },
+//   // { id: 10, name: "Biology Quiz", date: "2023-06-25", time: "13:30", participants: 22 },
+//   // { id: 13, name: "Economics Quiz", date: "2023-06-30", time: "09:00", participants: 30 },
+//   // { id: 14, name: "Psychology Quiz", date: "2023-07-05", time: "14:15", participants: 27 },
+// ]
+
 
 export default async function CourseDetails({ params }: { params: { courseId: string } }) {
   const session = await getServerSession(authOptions);
-
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
     redirect('/');
   }
 
   const branchCode = params.courseId[1];
   const initial = session.user?.initial;
-
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
-
+  const upcomingQuizzes = await fetchQuiz(initial);
   const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
     // Server-side action to handle quiz creation
     console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
@@ -171,9 +171,9 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                               <TableBody>
                                 {upcomingQuizzes.map((quiz) => (
                                   <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.name}</TableCell>
-                                    <TableCell>{quiz.date}</TableCell>
-                                    <TableCell>{quiz.time}</TableCell>
+                                    <TableCell className="font-medium">{quiz.title}</TableCell>
+                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                    <TableCell>{quiz.startTime.toLocaleTimeString()}</TableCell>
                                     {/* <TableCell>{quiz.participants}</TableCell> */}
                                     <TableCell className="text-right">
                                       <form action="/edit-quiz">

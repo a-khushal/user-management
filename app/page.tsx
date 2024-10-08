@@ -8,7 +8,6 @@ import TeacherDashboard from "@/components/teacher/TeacherDashboard";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-
   if (session?.user && (session?.user?.role == 'STUDENT' || session?.user?.role == 'student')) {
     return <>
       <StudentDashboard />

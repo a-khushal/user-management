@@ -1,18 +1,41 @@
 "use client"
-
+import { authOptions } from "@/app/authStore/auth"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Download, Upload } from "lucide-react"
-// import { createQuiz } from "./actions"
+import { createQuiz } from "@/actions/teacher/createQuiz"
+import { title } from "process"
+import { useSession } from "next-auth/react"
+import { getServerSession } from "next-auth"
+import { Teacher } from "@prisma/client"
 
-export function CreateQuizForm() {
+interface User {
+  name: string;
+  email: string;
+  id: string;
+  role: string;
+  initial: string; 
+}
+
+interface SessionData {
+  user: User;
+  expires: string;
+}
+
+interface Session {
+  data?: SessionData;
+  status: string;
+}
+
+
+export  function CreateQuizForm() {
+  const session =useSession();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
   const [quizTime, setQuizTime] = useState("")
   const [fileName, setFileName] = useState("")
-
   const handleDownloadSample = () => {
     // Logic to download sample Word file
     console.log("Downloading sample Word file")
@@ -25,6 +48,31 @@ export function CreateQuizForm() {
       setFileName(file.name)
     }
   }
+  const handleClick = async () => {
+    if (quizName && quizDate && quizTime ) {
+      const dateTime=`${quizDate}T${quizTime}:00`;
+      const quizdate=new Date(quizDate);
+      const time=new Date(dateTime);
+      const teacher:Teacher =session.data?.user;
+      const result = await createQuiz({
+        title: quizName,
+        date: quizdate,
+        startTime: time,
+        totalQuestions: 10,
+        teacher:teacher
+      })
+  
+      if (result.error) {
+    //    console.log(result.error);
+        alert('Error occurred during quiz creation');
+      } else {
+       // console.log(result.message);
+        alert('Quiz created successfully');
+      }
+    } else {
+      alert('Please fill all fields');
+    }
+  };
 
   return (
     <form action={() => alert("hi")} className="space-y-4">
@@ -81,7 +129,7 @@ export function CreateQuizForm() {
           />
         </Label>
       </div>
-      <Button type="submit" className="w-full">
+      <Button  className="w-full" onClick={handleClick}>
         Create Quiz
       </Button>
     </form>
