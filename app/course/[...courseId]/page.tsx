@@ -237,7 +237,8 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                     </Card>
                   </TabsContent>
                 </Tabs>
-              </div>           </TabsContent>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>

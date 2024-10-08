@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useEffect, useRef, useState } from "react";
 import { BookOpen, Download, MapPin, Pencil, PlusCircle, RefreshCw, Upload, UserPlus, Users } from "lucide-react";
 import { allStudents } from "@/actions/allStudents";
+import AddBranchForm from "./AddBranchForm";
 
 export interface Student {
   name: string,
@@ -78,9 +79,10 @@ export default function AllBranches({ branches }: {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold">College Branches</h2>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch
-            </Button>
+            {/* <Button> */}
+            {/*   <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch */}
+            {/* </Button> */}
+            <AddBranchForm />
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {branches?.map((branch) => (
