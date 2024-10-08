@@ -20,10 +20,12 @@ interface props{
 
 export function CreateQuizForm({courseId,branch}:props) {
   const session = useSession();
+  const datetime=new Date();
   const {toast}=useToast();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
-  const [quizTime, setQuizTime] = useState("")
+  const [quizStartTime, setQuizSTime] = useState("")
+  const [quizEndTime,setQuizETime]= useState("")
   const [fileName, setFileName] = useState("")
   const handleDownloadSample = () => {
     // Logic to download sample Word file
@@ -38,16 +40,18 @@ export function CreateQuizForm({courseId,branch}:props) {
     }
   }
   const handleClick = async () => {
-    if (quizName && quizDate && quizTime) {
-      const dateTime = `${quizDate}T${quizTime}:00`;
+      const dateTime = `${quizDate}T${quizStartTime}:00`;
       const quizdate = new Date(quizDate);
-      const time = new Date(dateTime);
+      const stime = new Date(dateTime);
+      const quiztime=`${quizDate}T${quizEndTime}:00`;
+      const etime=new Date(quiztime);
       //@ts-ignore
       const teacher: Teacher['initial'] = session.data?.user?.initial;
       const result = await createQuiz({
         title: quizName,
         date: quizdate,
-        startTime: time,
+        startTime: stime,
+        endTime:etime,
         totalQuestions: 10,
         teacher: teacher,
         course:courseId,
@@ -64,14 +68,14 @@ export function CreateQuizForm({courseId,branch}:props) {
           variant:"destructive",
         })
       }
-    }
+    
   };
 
   return (
     <form action={() => { }} className="space-y-4">
       <div>
         {/* {JSON.stringify(session.data?.user?.initial)} */}
-        <Label htmlFor="quizName">Quiz Name</Label>
+        <Label htmlFor="quizName">Quiz Title</Label>
         <Input
           id="quizName"
           name="quizName"
@@ -88,18 +92,30 @@ export function CreateQuizForm({courseId,branch}:props) {
           name="quizDate"
           type="date"
           value={quizDate}
+          min={`${datetime.toISOString().split("T")[0]}`}
           onChange={(e) => setQuizDate(e.target.value)}
           required
         />
       </div>
       <div>
-        <Label htmlFor="quizTime">Quiz Time</Label>
+        <Label htmlFor="quizStartTime">Quiz start Time</Label>
         <Input
-          id="quizTime"
-          name="quizTime"
+          id="quizStartTime"
+          name="quizStartTime"
           type="time"
-          value={quizTime}
-          onChange={(e) => setQuizTime(e.target.value)}
+          value={quizStartTime}
+          onChange={(e) => setQuizSTime(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="quizEndTime">Quiz End Time</Label>
+        <Input
+          id="quizStartTime"
+          name="quizStartTime"
+          type="time"
+          value={quizEndTime}
+          onChange={(e) => setQuizETime(e.target.value)}
           required
         />
       </div>

@@ -99,6 +99,7 @@ model Quiz {
   duration        Int           @default(10)
   date            DateTime
   startTime       DateTime
+  endTime         DateTime
   totalQuestions  Int           // number of questions that each student gets to answer
   // questions       Question[]
   teacherInitial  String

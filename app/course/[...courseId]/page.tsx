@@ -174,7 +174,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   <TableRow key={quiz.id}>
                                     <TableCell className="font-medium">{quiz.title}</TableCell>
                                     <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                    <TableCell>{quiz.startTime.toLocaleTimeString()}</TableCell>
+                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
                                     {/* <TableCell>{quiz.participants}</TableCell> */}
                                     <TableCell className="text-right">
                                       <form action="/edit-quiz">
