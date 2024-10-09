@@ -15,6 +15,7 @@ import { fetchStudents } from '@/actions/teacher/fetchStudents';
 import { authOptions } from '@/app/authStore/auth';
 import { CreateQuizForm } from '@/components/teacher/CreateQuizForm';
 import { fetchQuiz } from '@/actions/teacher/fetchQuiz';
+import { DeleteButton } from '@/components/teacher/DeleteButton';
 
 const previousQuizzes = [
   { id: 1, name: "Math Quiz", date: "2023-05-15", participants: 25, avgScore: 85 },
@@ -47,10 +48,13 @@ export default async function CourseDetails({ params }: { params: { courseId: st
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
   const upcomingQuizzes = await fetchQuiz({initial,course,branch:branchCode});
+  
   const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
     // Server-side action to handle quiz creation
     console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
   };
+
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -164,8 +168,9 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   <TableHead className="w-[200px]">Quiz Name</TableHead>
                                   <TableHead>Date</TableHead>
                                   <TableHead>Time</TableHead>
+                                  <TableHead>Duration</TableHead>
                                   {/* <TableHead>Participants</TableHead> */}
-                                  <TableHead className="text-right">Action</TableHead>
+                                  <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               {Array.isArray(upcomingQuizzes) ? (
@@ -176,6 +181,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                     <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
                                     <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
                                     {/* <TableCell>{quiz.participants}</TableCell> */}
+                                    <TableCell>{quiz.duration} minutes</TableCell>
                                     <TableCell className="text-right">
                                       <form action="/edit-quiz">
                                         <input type="hidden" name="quizId" value={quiz.id} />
@@ -184,6 +190,9 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                           Edit
                                         </Button>
                                       </form>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
                                     </TableCell>
                                   </TableRow>
                                 ))}

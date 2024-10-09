@@ -1,37 +1,36 @@
 "use client"
-import { authOptions } from "@/app/authStore/auth"
+
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Download, Upload } from "lucide-react"
 import { createQuiz } from "@/actions/teacher/createQuiz"
-import { title } from "process"
-import { useSession } from "next-auth/react"
-import { getServerSession } from "next-auth"
+import { useToast } from "@/hooks/use-toast"
 import { Teacher } from "@prisma/client"
-import { toast, useToast } from "@/hooks/use-toast"
-import { date } from "zod"
 
-interface props{
-  courseId:string,
-  branch:string
+interface Props {
+  courseId: string,
+  branch: string
 }
 
-
-export function CreateQuizForm({courseId,branch}:props) {
+export function CreateQuizForm({ courseId, branch }: Props) {
   const session = useSession();
-  const datetime=new Date();
-  const {toast}=useToast();
+  const datetime = new Date();
+  const { toast } = useToast();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
   const [quizStartTime, setQuizSTime] = useState("")
-  const [quizEndTime,setQuizETime]= useState("")
+  const [quizEndTime, setQuizETime] = useState("")
+  const [quizDuration, setQuizDuration] = useState<string>("")
+  const [customDuration, setCustomDuration] = useState<string>("")
   const [fileName, setFileName] = useState("")
+
   const handleDownloadSample = () => {
-    // Logic to download sample Word file
     console.log("Downloading sample Word file")
-    // In a real application, you would trigger the file download here
+    // Implement download sample functionality
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,45 +40,64 @@ export function CreateQuizForm({courseId,branch}:props) {
     }
   }
 
-  const temp = ({date}:{date:Date}) =>{
-    console.log(date.getTime())
+  const handleDurationChange = (value: string) => {
+    setQuizDuration(value)
+    if (value !== 'custom') {
+      setCustomDuration("")
+    }
   }
-  const handleClick = async () => {
-      const dateTime = `${quizDate}T${quizStartTime}:00`;
-      const quizdate = new Date(quizDate);
-      const stime = new Date(dateTime);
-      const quiztime=`${quizDate}T${quizEndTime}:00`;
-      const etime=new Date(quiztime);
-      //@ts-ignore
-      const teacher: Teacher['initial'] = session.data?.user?.initial;
-      const result = await createQuiz({
-        title: quizName,
-        date: quizdate,
-        startTime: stime,
-        endTime:etime,
-        totalQuestions: 10,
-        teacher: teacher,
-        course:courseId,
-        branch:branch
-      })
 
-      if (result&&result.message) {
-        toast({
-          title:result.message,
-        })
-      } else if(result.error) {
-        toast({
-          title:result.error,
-          variant:"destructive",
-        })
-      }
+  const handleCustomDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setCustomDuration(value)
+    setQuizDuration('custom')
+  }
+
+  const handleClick = async () => {
+    const dateTime = `${quizDate}T${quizStartTime}:00`;
+    const quizdate = new Date(quizDate);
+    const stime = new Date(dateTime);
+    const quiztime = `${quizDate}T${quizEndTime}:00`;
+    const etime = new Date(quiztime);
+    const teacher: Teacher['initial'] = session.data?.user?.initial as Teacher['initial'];
     
-  };
+    const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration)
+
+    if (isNaN(finalDuration)) {
+      toast({
+        title: "Please select or enter a valid quiz duration",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const result = await createQuiz({
+      title: quizName,
+      date: quizdate,
+      startTime: stime,
+      endTime: etime,
+      duration: finalDuration,
+      totalQuestions: 10,
+      teacher: teacher,
+      course: courseId,
+      branch: branch
+    })
+
+    if (result && result.message) {
+      toast({
+        title: result.message,
+      })
+    } else if (result.error) {
+      toast({
+        title: result.error,
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <form action={() => { }} className="space-y-4">
       <div>
-        {/* {JSON.stringify(session.data?.user?.initial)} */}
         <Label htmlFor="quizName">Quiz Title</Label>
         <Input
           id="quizName"
@@ -103,7 +121,7 @@ export function CreateQuizForm({courseId,branch}:props) {
         />
       </div>
       <div>
-        <Label htmlFor="quizStartTime">Quiz start Time</Label>
+        <Label htmlFor="quizStartTime">Quiz Start Time</Label>
         <Input
           id="quizStartTime"
           name="quizStartTime"
@@ -116,14 +134,46 @@ export function CreateQuizForm({courseId,branch}:props) {
       <div>
         <Label htmlFor="quizEndTime">Quiz End Time</Label>
         <Input
-          id="quizStartTime"
-          name="quizStartTime"
+          id="quizEndTime"
+          name="quizEndTime"
           type="time"
           value={quizEndTime}
           onChange={(e) => setQuizETime(e.target.value)}
           required
         />
       </div>
+      <div>
+        <Label htmlFor="quizDuration">Quiz Duration (minutes)</Label>
+        <Select value={quizDuration} onValueChange={handleDurationChange}>
+          <SelectTrigger id="quizDuration">
+            <SelectValue placeholder="Select quiz duration" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="15">15 minutes</SelectItem>
+            <SelectItem value="30">30 minutes</SelectItem>
+            <SelectItem value="45">45 minutes</SelectItem>
+            <SelectItem value="60">1 hour</SelectItem>
+            <SelectItem value="90">1 hour 30 minutes</SelectItem>
+            <SelectItem value="120">2 hours</SelectItem>
+            <SelectItem value="custom">Custom duration</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {quizDuration === 'custom' && (
+        <div>
+          <Label htmlFor="customDuration">Custom Duration (minutes)</Label>
+          <Input
+            id="customDuration"
+            name="customDuration"
+            type="number"
+            value={customDuration}
+            onChange={handleCustomDurationChange}
+            placeholder="Enter custom duration in minutes"
+            min="1"
+            required
+          />
+        </div>
+      )}
       <div className="space-y-2">
         <Button type="button" variant="outline" onClick={handleDownloadSample} className="w-full">
           <Download className="mr-2 h-4 w-4" />
