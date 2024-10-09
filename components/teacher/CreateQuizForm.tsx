@@ -1,42 +1,55 @@
 "use client"
-import { authOptions } from "@/app/authStore/auth"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Download, Upload } from "lucide-react"
 import { createQuiz } from "@/actions/teacher/createQuiz"
-import { title } from "process"
 import { useSession } from "next-auth/react"
-import { getServerSession } from "next-auth"
 import { Teacher } from "@prisma/client"
 import { toast, useToast } from "@/hooks/use-toast"
+import mammoth from 'mammoth';
 
-interface props{
-  courseId:string,
-  branch:string
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { Abel } from "next/font/google"
+
+interface props {
+  courseId: string,
+  branch: string
 }
 
-
-export function CreateQuizForm({courseId,branch}:props) {
+export function CreateQuizForm({ courseId, branch }: props) {
   const session = useSession();
-  const {toast}=useToast();
+  const { toast } = useToast();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
   const [quizTime, setQuizTime] = useState("")
   const [fileName, setFileName] = useState("")
+
   const handleDownloadSample = () => {
-    // Logic to download sample Word file
-    console.log("Downloading sample Word file")
-    // In a real application, you would trigger the file download here
+    window.location.href = "/teacher/sampleWordQuizTemplate.docx";
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setFileName(file.name)
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      console.error("No file selected");
+      return;
     }
-  }
+
+    setFileName(file.name)
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const { value: text } = await mammoth.extractRawText({ arrayBuffer });
+      console.log(text);
+    } catch (error) {
+      console.error("Error processing file:", error);
+    }
+  };
+
+
   const handleClick = async () => {
     if (quizName && quizDate && quizTime) {
       const dateTime = `${quizDate}T${quizTime}:00`;
@@ -50,18 +63,18 @@ export function CreateQuizForm({courseId,branch}:props) {
         startTime: time,
         totalQuestions: 10,
         teacher: teacher,
-        course:courseId,
-        branch:branch
+        course: courseId,
+        branch: branch
       })
 
-      if (result&&result.message) {
+      if (result && result.message) {
         toast({
-          title:result.message,
+          title: result.message,
         })
-      } else if(result.error) {
+      } else if (result.error) {
         toast({
-          title:result.error,
-          variant:"destructive",
+          title: result.error,
+          variant: "destructive",
         })
       }
     }
@@ -108,24 +121,26 @@ export function CreateQuizForm({courseId,branch}:props) {
           <Download className="mr-2 h-4 w-4" />
           Download Sample Word File
         </Button>
-        <Label htmlFor="upload-file" className="w-full">
-          <Button variant="outline" className="w-full">
-            <Upload className="mr-2 h-4 w-4" />
-            {fileName ? fileName : "Upload Quiz Word File"}
-          </Button>
+        <div className="relative">
+          <Label htmlFor="upload-file" className="w-full">
+            <Button variant="outline" className="w-full">
+              <Upload className="mr-2 h-4 w-4" />
+              {fileName ? fileName : "Upload Quiz Word File"}
+            </Button>
+          </Label>
           <Input
             id="upload-file"
             name="quizFile"
             type="file"
             accept=".doc,.docx"
-            className="hidden"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={handleFileChange}
           />
-        </Label>
+        </div>
       </div>
       <Button className="w-full" onClick={handleClick}>
         Create Quiz
       </Button>
-    </form>
+    </form >
   )
 }

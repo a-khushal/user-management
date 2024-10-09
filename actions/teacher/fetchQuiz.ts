@@ -16,16 +16,16 @@ interface quiz {
   startTime: Date,
 }
 
-export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['initial'],course:Course['courseId'],branch:Branch['code'] }) {
-  console.log(course);
-  console.log(branch);
+export async function fetchQuiz({ initial, course, branch }: { initial: Teacher['initial'], course: Course['courseId'], branch: Branch['code'] }) {
+  // console.log(course);
+  // console.log(branch);
   try {
     const quizzes: quiz[] = await db.quiz.findMany({
       where: {
         teacherInitial: initial,
-        branchCode:branch,
-        courseId:course
-        
+        branchCode: branch,
+        courseId: course
+
       },
       select: {
         id: true,
