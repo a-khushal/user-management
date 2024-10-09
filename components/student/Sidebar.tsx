@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { getQuiz,squiz } from "@/actions/teacher/fetchQuiz";
 import { error } from "console";
 import { Branch, Course } from "@prisma/client";
+import exp from "constants";
 
 interface Links {
   label: string;
@@ -334,9 +335,26 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
   const [upcomingQuizzes, setQuizzes] = useState<squiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+  const options:Intl.DateTimeFormatOptions={timeZone:'Asia/Kolkata',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'};
   const handleClick = (id: string, usn: string) => {
     router.push(`dashboard`)
+  }
+
+  const isExpired =({quizDate,quizTime}:{quizDate:Date,quizTime:Date}) =>{
+    const endtime=new Date(quizDate)
+    endtime.setTime(quizTime.getTime())
+    const now=new Date();
+    const expired= now >endtime
+    console.log(endtime)
+    return (
+      <div>
+      {expired? (
+        <p>The quiz has expired contact your instructor</p>
+      ):(
+        <p>Prepare for quiz</p>
+      )}
+      </div>
+    )
   }
 
   useEffect(() => {
@@ -431,7 +449,7 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
                         Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
                       </p>
                       <Button variant="outline" size="sm" className="mt-2">
-                        Prepare for Quiz
+                        {isExpired({quizDate:quiz.date,quizTime:quiz.endTime})}
                       </Button>
                     </li>
                   ))}

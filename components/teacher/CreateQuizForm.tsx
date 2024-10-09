@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react"
 import { getServerSession } from "next-auth"
 import { Teacher } from "@prisma/client"
 import { toast, useToast } from "@/hooks/use-toast"
+import { date } from "zod"
 
 interface props{
   courseId:string,
@@ -38,6 +39,10 @@ export function CreateQuizForm({courseId,branch}:props) {
     if (file) {
       setFileName(file.name)
     }
+  }
+
+  const temp = ({date}:{date:Date}) =>{
+    console.log(date.getTime())
   }
   const handleClick = async () => {
       const dateTime = `${quizDate}T${quizStartTime}:00`;

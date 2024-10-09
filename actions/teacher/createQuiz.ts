@@ -15,7 +15,6 @@ export async function createQuiz({ title, date, startTime, totalQuestions,endTim
   totalQuestions: number,
   teacher: Teacher['initial'],
   course:Course['courseId'],
-  courseName:Course['title']
   branch:Branch['code']
 }) {
 
