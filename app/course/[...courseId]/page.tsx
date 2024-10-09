@@ -169,25 +169,25 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                 </TableRow>
                               </TableHeader>
                               {Array.isArray(upcomingQuizzes) ? (
-                                <TableBody>
-                                  {upcomingQuizzes.map((quiz) => (
-                                    <TableRow key={quiz.id}>
-                                      <TableCell className="font-medium">{quiz.title}</TableCell>
-                                      <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                      <TableCell>{quiz.startTime.toLocaleTimeString()}</TableCell>
-                                      {/* <TableCell>{quiz.participants}</TableCell> */}
-                                      <TableCell className="text-right">
-                                        <form action="/edit-quiz">
-                                          <input type="hidden" name="quizId" value={quiz.id} />
-                                          <Button variant="outline" size="sm">
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            View
-                                          </Button>
-                                        </form>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
+                              <TableBody>
+                                {upcomingQuizzes.map((quiz) => (
+                                  <TableRow key={quiz.id}>
+                                    <TableCell className="font-medium">{quiz.title}</TableCell>
+                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
+                                    {/* <TableCell>{quiz.participants}</TableCell> */}
+                                    <TableCell className="text-right">
+                                      <form action="/edit-quiz">
+                                        <input type="hidden" name="quizId" value={quiz.id} />
+                                        <Button variant="outline" size="sm">
+                                          <Eye className="mr-2 h-4 w-4" />
+                                          View
+                                        </Button>
+                                      </form>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
                               ) : <p>An error occurred</p>}
                             </Table>
                           </div>

@@ -9,16 +9,23 @@ import { authOptions } from "@/app/authStore/auth"
 import { Course } from "@prisma/client"
 import { Branch } from "@prisma/client"
 
-interface quiz {
+export interface quiz {
   id: number,
   title: string,
   date: Date,
   startTime: Date,
+  endTime:Date,
+}
+export interface squiz {
+  id: number,
+  title: string,
+  date: Date,
+  startTime: Date,
+  endTime:Date,
+  course:Course
 }
 
-export async function fetchQuiz({ initial, course, branch }: { initial: Teacher['initial'], course: Course['courseId'], branch: Branch['code'] }) {
-  // console.log(course);
-  // console.log(branch);
+export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['initial'],course:Course['courseId'],branch:Branch['code'] }) {
   try {
     const quizzes: quiz[] = await db.quiz.findMany({
       where: {
@@ -31,6 +38,7 @@ export async function fetchQuiz({ initial, course, branch }: { initial: Teacher[
         id: true,
         title: true,
         startTime: true,
+        endTime:true,
         date: true
       }
     })
@@ -38,6 +46,34 @@ export async function fetchQuiz({ initial, course, branch }: { initial: Teacher[
   } catch (e) {
     return {
       error: "Error while fetching data"
+    }
+  }
+}
+
+
+export async function getQuiz({courses,branch}:{courses:Course['courseId'][],branch?:Branch['code']}){
+  try{
+    const quizzes=await db.quiz.findMany({
+      where:{
+        courseId:{
+          in:courses
+        },
+        branchCode:branch
+      },
+      select:{
+        course:true,
+        id:true,
+        title:true,
+        startTime:true,
+        endTime:true,
+        date:true
+      }
+    })
+    return quizzes
+  }catch(e){
+    console.log("Error occured")
+    return{
+      error:"Error fetching data"
     }
   }
 }
