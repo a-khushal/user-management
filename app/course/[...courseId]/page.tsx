@@ -43,7 +43,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
     redirect('/');
   }
-  const course=params.courseId[0];
+  const course = params.courseId[0];
   const branchCode = params.courseId[1];
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
@@ -186,8 +186,8 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                       <form action="/edit-quiz">
                                         <input type="hidden" name="quizId" value={quiz.id} />
                                         <Button variant="outline" size="sm">
-                                          <Edit className="mr-2 h-4 w-4" />
-                                          Edit
+                                          <Eye className="mr-2 h-4 w-4" />
+                                          {/* View */}
                                         </Button>
                                       </form>
                                     </TableCell>

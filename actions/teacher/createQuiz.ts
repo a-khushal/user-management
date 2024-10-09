@@ -5,7 +5,6 @@ import db from "../../db";
 import { Teacher } from "@prisma/client";
 import { Course } from "@prisma/client";
 import { Branch } from "@prisma/client";
-import { connect } from "http2";
 
 export async function createQuiz({ title, date, startTime, totalQuestions,endTime,duration, teacher,course,branch }: {
   title: string,
@@ -15,8 +14,8 @@ export async function createQuiz({ title, date, startTime, totalQuestions,endTim
   duration:number,
   totalQuestions: number,
   teacher: Teacher['initial'],
-  course:Course['courseId'],
-  branch:Branch['code']
+  course: Course['courseId'],
+  branch: Branch['code']
 }) {
 
   try {
@@ -31,11 +30,11 @@ export async function createQuiz({ title, date, startTime, totalQuestions,endTim
         teacher:{
           connect:{initial:teacher}
         },
-        course:{
-          connect:{courseId:course}
+        course: {
+          connect: { courseId: course }
         },
-        branch:{
-          connect:{code:branch}
+        branch: {
+          connect: { code: branch }
         }
       }
     })

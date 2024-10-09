@@ -16,7 +16,8 @@ interface Props {
   branch: string
 }
 
-export function CreateQuizForm({ courseId, branch }: Props) {
+
+export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const session = useSession();
   const datetime = new Date();
   const { toast } = useToast();
@@ -33,11 +34,13 @@ export function CreateQuizForm({ courseId, branch }: Props) {
     // Implement download sample functionality
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setFileName(file.name)
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      console.error("No file selected");
+      return;
     }
+    setFileName(file.name);
   }
 
   const handleDurationChange = (value: string) => {
@@ -59,7 +62,8 @@ export function CreateQuizForm({ courseId, branch }: Props) {
     const stime = new Date(dateTime);
     const quiztime = `${quizDate}T${quizEndTime}:00`;
     const etime = new Date(quiztime);
-    const teacher: Teacher['initial'] = session.data?.user?.initial as Teacher['initial'];
+    //@ts-ignore
+    const teacher: Teacher['initial'] = session.data?.user?.initial 
     
     const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration)
 
@@ -96,7 +100,7 @@ export function CreateQuizForm({ courseId, branch }: Props) {
   }
 
   return (
-    <form action={() => { }} className="space-y-4">
+    <form className="space-y-4">
       <div>
         <Label htmlFor="quizName">Quiz Title</Label>
         <Input
@@ -179,20 +183,22 @@ export function CreateQuizForm({ courseId, branch }: Props) {
           <Download className="mr-2 h-4 w-4" />
           Download Sample Word File
         </Button>
-        <Label htmlFor="upload-file" className="w-full">
-          <Button variant="outline" className="w-full">
-            <Upload className="mr-2 h-4 w-4" />
-            {fileName ? fileName : "Upload Quiz Word File"}
-          </Button>
+        <div className="relative">
+          <Label htmlFor="upload-file" className="w-full">
+            <Button variant="outline" className="w-full">
+              <Upload className="mr-2 h-4 w-4" />
+              {fileName ? fileName : "Upload Quiz Word File"}
+            </Button>
+          </Label>
           <Input
             id="upload-file"
             name="quizFile"
             type="file"
             accept=".doc,.docx"
-            className="hidden"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={handleFileChange}
           />
-        </Label>
+        </div>
       </div>
       <Button className="w-full" onClick={handleClick}>
         Create Quiz

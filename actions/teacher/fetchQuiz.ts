@@ -32,9 +32,9 @@ export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['i
     const quizzes: quiz[] = await db.quiz.findMany({
       where: {
         teacherInitial: initial,
-        branchCode:branch,
-        courseId:course
-        
+        branchCode: branch,
+        courseId: course
+
       },
       select: {
         id: true,
