@@ -181,7 +181,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                         <input type="hidden" name="quizId" value={quiz.id} />
                                         <Button variant="outline" size="sm">
                                           <Eye className="mr-2 h-4 w-4" />
-                                          View
+                                          {/* View */}
                                         </Button>
                                       </form>
                                     </TableCell>
