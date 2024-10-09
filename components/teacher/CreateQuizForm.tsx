@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Download, Upload } from "lucide-react"
+import { Download, Option, OptionIcon, Upload } from "lucide-react"
 import { createQuiz } from "@/actions/teacher/createQuiz"
 import { useSession } from "next-auth/react"
 import { Teacher } from "@prisma/client"
@@ -20,14 +20,19 @@ interface props {
   branch: string
 }
 
+interface Option {
+  optionText: string,
+  optionMark: string,
+}
+
 export function CreateQuizForm({ courseId, branch }: props) {
   const session = useSession();
-  const datetime=new Date();
-  const {toast}=useToast();
+  const datetime = new Date();
+  const { toast } = useToast();
   const [quizName, setQuizName] = useState("")
   const [quizDate, setQuizDate] = useState("")
   const [quizStartTime, setQuizSTime] = useState("")
-  const [quizEndTime,setQuizETime]= useState("")
+  const [quizEndTime, setQuizETime] = useState("")
   const [fileName, setFileName] = useState("")
 
   const handleDownloadSample = () => {
@@ -46,7 +51,57 @@ export function CreateQuizForm({ courseId, branch }: props) {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const { value: text } = await mammoth.extractRawText({ arrayBuffer });
-      console.log(text);
+      const questions = text.split(/Question \d+/).slice(1); // Split and skip the first element
+      const quizData: any = [];
+
+      questions.forEach((question) => {
+        const lines = question.trim().split('\n').filter(line => line.trim() !== '');
+
+        const questionObj = {
+          questionText: '',
+          defaultMark: '',
+          numberOfOptions: 0,
+          options: [] as Option[],
+        };
+
+        // question text: 
+        let i = 1;
+        while (lines[i] != 'MC') {
+          questionObj.questionText += lines[i++] + "\n";
+        }
+
+        // defaultMark
+        while (lines[i] != 'Default mark :') {
+          i++;
+        } questionObj.defaultMark = lines[i + 1];
+
+        // numberOfOptions
+        while (lines[i] != 'Number of options?') {
+          i++;
+        } questionObj.numberOfOptions = parseInt(lines[i + 1], 10);
+
+        while (lines[i] != 'Grade') {
+          i++;
+        }
+
+        // options
+        i += 2;
+        for (let j = 0; j < questionObj.numberOfOptions; j++) {
+          const optionText = lines[i + j * 3];
+          const optionMark = lines[i + j * 3 + 1];
+          if (optionText == '000' || optionText == '001') {
+            break;
+          }
+          questionObj.options.push({
+            optionText: optionText,
+            optionMark: optionMark
+          });
+        }
+        quizData.push(questionObj);
+
+      });
+      console.log(JSON.stringify(quizData, null, 2));
+      // console.log(JSON.stringify(text))
     } catch (error) {
       console.error("Error processing file:", error);
     }
@@ -54,35 +109,35 @@ export function CreateQuizForm({ courseId, branch }: props) {
 
 
   const handleClick = async () => {
-      const dateTime = `${quizDate}T${quizStartTime}:00`;
-      const quizdate = new Date(quizDate);
-      const stime = new Date(dateTime);
-      const quiztime=`${quizDate}T${quizEndTime}:00`;
-      const etime=new Date(quiztime);
-      //@ts-ignore
-      const teacher: Teacher['initial'] = session.data?.user?.initial;
-      const result = await createQuiz({
-        title: quizName,
-        date: quizdate,
-        startTime: stime,
-        endTime:etime,
-        totalQuestions: 10,
-        teacher: teacher,
-        course: courseId,
-        branch: branch
-      })
+    const dateTime = `${quizDate}T${quizStartTime}:00`;
+    const quizdate = new Date(quizDate);
+    const stime = new Date(dateTime);
+    const quiztime = `${quizDate}T${quizEndTime}:00`;
+    const etime = new Date(quiztime);
+    //@ts-ignore
+    const teacher: Teacher['initial'] = session.data?.user?.initial;
+    const result = await createQuiz({
+      title: quizName,
+      date: quizdate,
+      startTime: stime,
+      endTime: etime,
+      totalQuestions: 10,
+      teacher: teacher,
+      course: courseId,
+      branch: branch
+    })
 
-      if (result && result.message) {
-        toast({
-          title: result.message,
-        })
-      } else if (result.error) {
-        toast({
-          title: result.error,
-          variant: "destructive",
-        })
-      }
-    
+    if (result && result.message) {
+      toast({
+        title: result.message,
+      })
+    } else if (result.error) {
+      toast({
+        title: result.error,
+        variant: "destructive",
+      })
+    }
+
   };
 
   return (

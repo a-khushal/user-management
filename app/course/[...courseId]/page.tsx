@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, Eye, Plus } from "lucide-react";
+import { Edit, Eye, Pencil, Plus } from "lucide-react";
 import { Appbar } from '@/components/Appbar';
 import { getServerSession } from 'next-auth';
 import { fetchStudents } from '@/actions/teacher/fetchStudents';
@@ -163,31 +163,31 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                 <TableRow>
                                   <TableHead className="w-[200px]">Quiz Name</TableHead>
                                   <TableHead>Date</TableHead>
-                                  <TableHead>Time</TableHead>
+                                  <TableHead>Active Time</TableHead>
                                   {/* <TableHead>Participants</TableHead> */}
                                   <TableHead className="text-right">Action</TableHead>
                                 </TableRow>
                               </TableHeader>
                               {Array.isArray(upcomingQuizzes) ? (
-                              <TableBody>
-                                {upcomingQuizzes.map((quiz) => (
-                                  <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.title}</TableCell>
-                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
-                                    {/* <TableCell>{quiz.participants}</TableCell> */}
-                                    <TableCell className="text-right">
-                                      <form action="/edit-quiz">
-                                        <input type="hidden" name="quizId" value={quiz.id} />
-                                        <Button variant="outline" size="sm">
-                                          <Eye className="mr-2 h-4 w-4" />
-                                          {/* View */}
-                                        </Button>
-                                      </form>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
+                                <TableBody>
+                                  {upcomingQuizzes.map((quiz) => (
+                                    <TableRow key={quiz.id}>
+                                      <TableCell className="font-medium">{quiz.title}</TableCell>
+                                      <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                      <TableCell>{quiz.startTime.toLocaleTimeString()} - {quiz.endTime.toLocaleTimeString()}</TableCell>
+                                      {/* <TableCell>{quiz.participants}</TableCell> */}
+                                      <TableCell className="text-right">
+                                        <form action="/edit-quiz">
+                                          <input type="hidden" name="quizId" value={quiz.id} />
+                                          <Button variant="outline" size="sm">
+                                            <Eye className="mr-2 h-4 w-4" /><span className='mr-2'>View</span>
+                                            / <Pencil className='mr-2 h-3 w-4' /><span>Edit</span>
+                                          </Button>
+                                        </form>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
                               ) : <p>An error occurred</p>}
                             </Table>
                           </div>
