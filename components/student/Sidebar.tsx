@@ -448,6 +448,7 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
                       </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
                       <Button variant="outline" size="sm" className="mt-2">
                         {isExpired({quizDate:quiz.date,quizTime:quiz.endTime})}
                       </Button>

@@ -15,6 +15,7 @@ export interface quiz {
   date: Date,
   startTime: Date,
   endTime:Date,
+  duration:number
 }
 export interface squiz {
   id: number,
@@ -22,6 +23,7 @@ export interface squiz {
   date: Date,
   startTime: Date,
   endTime:Date,
+  duration:number,
   course:Course
 }
 
@@ -39,7 +41,8 @@ export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['i
         title: true,
         startTime: true,
         endTime:true,
-        date: true
+        date: true,
+        duration:true
       }
     })
     return quizzes;
@@ -66,7 +69,8 @@ export async function getQuiz({courses,branch}:{courses:Course['courseId'][],bra
         title:true,
         startTime:true,
         endTime:true,
-        date:true
+        date:true,
+        duration:true
       }
     })
     return quizzes

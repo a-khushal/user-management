@@ -6,11 +6,12 @@ import { Teacher } from "@prisma/client";
 import { Course } from "@prisma/client";
 import { Branch } from "@prisma/client";
 
-export async function createQuiz({ title, date, startTime, totalQuestions,endTime, teacher,course,branch }: {
+export async function createQuiz({ title, date, startTime, totalQuestions,endTime,duration, teacher,course,branch }: {
   title: string,
   date: Date,
   startTime: Date,
   endTime:Date,
+  duration:number,
   totalQuestions: number,
   teacher: Teacher['initial'],
   course: Course['courseId'],
@@ -25,8 +26,9 @@ export async function createQuiz({ title, date, startTime, totalQuestions,endTim
         startTime: startTime,
         endTime:endTime,
         totalQuestions: totalQuestions,
-        teacher: {
-          connect: { initial: teacher }
+        duration:duration,
+        teacher:{
+          connect:{initial:teacher}
         },
         course: {
           connect: { courseId: course }
