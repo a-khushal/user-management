@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, Eye, Plus } from "lucide-react";
+import { Edit, Eye, Pencil, Plus } from "lucide-react";
 import { Appbar } from '@/components/Appbar';
 import { getServerSession } from 'next-auth';
 import { fetchStudents } from '@/actions/teacher/fetchStudents';

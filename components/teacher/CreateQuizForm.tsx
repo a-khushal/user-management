@@ -10,12 +10,17 @@ import { Download, Upload } from "lucide-react"
 import { createQuiz } from "@/actions/teacher/createQuiz"
 import { useToast } from "@/hooks/use-toast"
 import { Teacher } from "@prisma/client"
+import mammoth from "mammoth";
 
 interface Props {
   courseId: string,
   branch: string
 }
 
+interface Option {
+  optionText: string,
+  optionMark: string,
+}
 
 export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const session = useSession();
@@ -28,10 +33,10 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const [quizDuration, setQuizDuration] = useState<string>("")
   const [customDuration, setCustomDuration] = useState<string>("")
   const [fileName, setFileName] = useState("")
+  const [fileUploaded, setFileUploaded] = useState(false);
 
   const handleDownloadSample = () => {
-    console.log("Downloading sample Word file")
-    // Implement download sample functionality
+    window.location.href = "/teacher/sampleWordQuizTemplate.docx";
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,39 +45,108 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
       console.error("No file selected");
       return;
     }
-    setFileName(file.name);
+
+    setFileName(file.name)
+    setFileUploaded(true);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const { value: text } = await mammoth.extractRawText({ arrayBuffer });
+      const questions = text.split(/Question \d+/).slice(1); // Split and skip the first element
+      const quizData: any = [];
+
+      questions.forEach((question) => {
+        const lines = question.trim().split('\n').filter(line => line.trim() !== '');
+
+        const questionObj = {
+          questionText: '',
+          defaultMark: '',
+          numberOfOptions: 0,
+          options: [] as Option[],
+        };
+
+        // Extract question text
+        let i = 1;
+        while (lines[i] !== 'MC' && i < lines.length) {
+          questionObj.questionText += lines[i++] + "\n";
+        }
+
+        // Extract default mark
+        while (lines[i] !== 'Default mark :') {
+          i++;
+        }
+        questionObj.defaultMark = lines[i + 1];
+
+        // Extract number of options
+        while (lines[i] !== 'Number of options?') {
+          i++;
+        }
+        questionObj.numberOfOptions = parseInt(lines[i + 1], 10);
+
+        while (lines[i] !== 'Grade') {
+          i++;
+        }
+
+        // Extract options
+        i += 2;
+        for (let j = 0; j < questionObj.numberOfOptions; j++) {
+          const optionText = lines[i + j * 3];
+          const optionMark = lines[i + j * 3 + 1];
+          if (optionText === '000' || optionText === '001') {
+            break;
+          }
+          questionObj.options.push({
+            optionText: optionText,
+            optionMark: optionMark
+          });
+        }
+        quizData.push(questionObj);
+      });
+
+      console.log(JSON.stringify(quizData, null, 2));
+    } catch (error) {
+      console.error("Error processing file:", error);
+    }
   }
 
   const handleDurationChange = (value: string) => {
-    setQuizDuration(value)
+    setQuizDuration(value);
     if (value !== 'custom') {
-      setCustomDuration("")
+      setCustomDuration("");
     }
   }
 
   const handleCustomDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setCustomDuration(value)
-    setQuizDuration('custom')
+    const value = e.target.value;
+    setCustomDuration(value);
+    setQuizDuration('custom');
   }
 
   const handleClick = async () => {
+    if (fileUploaded == false) {
+      toast({
+        title: "Please select or upload a word file with quiz questions",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const dateTime = `${quizDate}T${quizStartTime}:00`;
     const quizdate = new Date(quizDate);
     const stime = new Date(dateTime);
     const quiztime = `${quizDate}T${quizEndTime}:00`;
     const etime = new Date(quiztime);
     //@ts-ignore
-    const teacher: Teacher['initial'] = session.data?.user?.initial 
-    
-    const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration)
+    const teacher: Teacher['initial'] = session.data?.user?.initial;
+
+    const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration);
 
     if (isNaN(finalDuration)) {
       toast({
         title: "Please select or enter a valid quiz duration",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     const result = await createQuiz({
@@ -85,17 +159,17 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
       teacher: teacher,
       course: courseId,
       branch: branch
-    })
+    });
 
     if (result && result.message) {
       toast({
         title: result.message,
-      })
+      });
     } else if (result.error) {
       toast({
         title: result.error,
         variant: "destructive",
-      })
+      });
     }
   }
 
@@ -148,7 +222,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
       </div>
       <div>
         <Label htmlFor="quizDuration">Quiz Duration (minutes)</Label>
-        <Select value={quizDuration} onValueChange={handleDurationChange}>
+        <Select value={quizDuration} onValueChange={handleDurationChange} required>
           <SelectTrigger id="quizDuration">
             <SelectValue placeholder="Select quiz duration" />
           </SelectTrigger>
