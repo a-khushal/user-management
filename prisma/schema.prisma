@@ -101,13 +101,31 @@ model Quiz {
   startTime       DateTime
   endTime         DateTime
   totalQuestions  Int           // number of questions that each student gets to answer
-  // questions       Question[]
+  questions       Question[]
   teacherInitial  String
   teacher         Teacher       @relation(fields: [teacherInitial], references: [initial])
   courseId        String
   course          Course        @relation(fields: [courseId], references: [courseId])
   branchCode      String
   branch          Branch        @relation(fields: [branchCode], references: [code])
+}
+
+model Question {
+  id                  Int          @id @default(autoincrement()) 
+  questionText        String
+  defaultMark         String
+  numberOfOptions     Int
+  options             Option[]
+  quizId              Int
+  quiz                Quiz         @relation(fields: [quizId], references: [id])
+}
+
+model Option {
+  id               Int            @id @default(autoincrement())
+  optionText       String 
+  optionMark       String
+  questionId       Int
+  question         Question       @relation(fields: [questionId], references: [id])
 }
 
 enum Role {

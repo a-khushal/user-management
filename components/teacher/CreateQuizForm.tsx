@@ -22,6 +22,13 @@ interface Option {
   optionMark: string,
 }
 
+interface QuizData {
+  questionText: string,
+  defaultMark: string
+  numberOfOptions: number,
+  options: Option[]
+}
+
 export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const session = useSession();
   const datetime = new Date();
@@ -53,7 +60,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
       const arrayBuffer = await file.arrayBuffer();
       const { value: text } = await mammoth.extractRawText({ arrayBuffer });
       const questions = text.split(/Question \d+/).slice(1); // Split and skip the first element
-      const quizData: any = [];
+      const quizData: QuizData[] = [];
 
       questions.forEach((question) => {
         const lines = question.trim().split('\n').filter(line => line.trim() !== '');
@@ -102,7 +109,6 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
         }
         quizData.push(questionObj);
       });
-
       console.log(JSON.stringify(quizData, null, 2));
     } catch (error) {
       console.error("Error processing file:", error);
