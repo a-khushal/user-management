@@ -17,6 +17,20 @@ import { CreateQuizForm } from '@/components/teacher/CreateQuizForm';
 import { fetchQuiz } from '@/actions/teacher/fetchQuiz';
 import { DeleteButton } from '@/components/teacher/DeleteButton';
 
+
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+
+const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const params = context.params;
+  return {
+    props: {
+      params,
+    },
+  };
+};
+
 const previousQuizzes = [
   { id: 1, name: "Math Quiz", date: "2023-05-15", participants: 25, avgScore: 85 },
   { id: 2, name: "Science Quiz", date: "2023-05-20", participants: 30, avgScore: 78 },
@@ -27,17 +41,17 @@ const previousQuizzes = [
   { id: 12, name: "Computer Science Quiz", date: "2023-06-05", participants: 35, avgScore: 92 },
 ]
 
-export default async function CourseDetails({ params }: { params: { courseId: string } }) {
+export default async function CourseDetails({ params }: { params: { courseId: string, branchCode: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
     redirect('/');
   }
-  const course = params.courseId[0];
-  const branchCode = params.courseId[1];
+  const course = params.courseId;
+  const branchCode = params.branchCode;
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
-  const upcomingQuizzes = await fetchQuiz({initial,course,branch:branchCode});
-  
+  const upcomingQuizzes = await fetchQuiz({ initial, course, branch: branchCode });
+
   const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
     // Server-side action to handle quiz creation
     console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
@@ -100,27 +114,27 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                 </TableRow>
                               </TableHeader>
                               {Array.isArray(upcomingQuizzes) ? (
-                              <TableBody>
-                                {upcomingQuizzes.map((quiz) => (
-                                  <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.title}</TableCell>
-                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
-                                    <TableCell>{quiz.duration} minutes</TableCell>
-                                    <TableCell className="text-right">
-                                      <form action="/edit-quiz">
-                                        <input type="hidden" name="quizId" value={quiz.id} />
-                                        <Button variant="outline" size="sm">
-                                          <Eye className="mr-2 h-4 w-4" />
-                                        </Button>
-                                      </form>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
+                                <TableBody>
+                                  {upcomingQuizzes.map((quiz) => (
+                                    <TableRow key={quiz.id}>
+                                      <TableCell className="font-medium">{quiz.title}</TableCell>
+                                      <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                      <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
+                                      <TableCell>{quiz.duration} minutes</TableCell>
+                                      <TableCell className="text-right">
+                                        <form action="/edit-quiz">
+                                          <input type="hidden" name="quizId" value={quiz.id} />
+                                          <Button variant="outline" size="sm">
+                                            <Eye className="mr-2 h-4 w-4" />
+                                          </Button>
+                                        </form>
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
                               ) : <p>An error occurred</p>}
                             </Table>
                           </div>
@@ -238,3 +252,16 @@ export default async function CourseDetails({ params }: { params: { courseId: st
     </div>
   );
 }
+
+
+
+// const CoursePage = ({ params }: any) => {
+//     return (
+//     <div>
+//       <h1>Course ID: {courseId}</h1>
+//     </div>
+//   );
+// };
+//
+// export default CoursePage;
+//
