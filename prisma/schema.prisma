@@ -44,7 +44,7 @@ model CourseOfStudent {
   usn           String
   course        Course      @relation(fields: [courseId], references: [courseId])
   courseId      String
-  @@unique([usn, courseId])
+  @@id([usn, courseId])
 }
 
 model Teacher {
@@ -74,7 +74,7 @@ model BranchTeacher {
   teacherInitial      String
   branch              Branch           @relation(fields: [branchCode], references: [code])
   branchCode          String
-  @@unique([teacherInitial, branchCode])
+  @@id([teacherInitial, branchCode])
 }
 
 model CourseOfTeacher {
@@ -82,7 +82,7 @@ model CourseOfTeacher {
   teacherInitial      String
   course              Course      @relation(fields: [courseId], references: [courseId])
   courseId            String
-  @@unique([teacherInitial, courseId])
+  @@id([teacherInitial, courseId])
 }
 
 model StudentTeacher {
@@ -90,7 +90,7 @@ model StudentTeacher {
   usn               String
   teacher           Teacher    @relation(fields: [teacherInitial], references: [initial])
   teacherInitial    String
-  @@unique([usn, teacherInitial])
+  @@id([usn, teacherInitial])
 }
 
 model Quiz {
@@ -115,7 +115,7 @@ model Question {
   questionText        String
   defaultMark         String
   numberOfOptions     Int
-  options             Option[]
+ options             Option[]
   quizId              Int
   quiz                Quiz         @relation(fields: [quizId], references: [id])
 }
