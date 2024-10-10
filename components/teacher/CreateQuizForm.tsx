@@ -280,7 +280,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
           />
         </div>
       </div>
-      <Button className="w-full" onClick={handleClick}>
+      <Button type="button" className="w-full" onClick={handleClick}>
         Create Quiz
       </Button>
     </form>

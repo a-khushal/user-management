@@ -27,17 +27,6 @@ const previousQuizzes = [
   { id: 12, name: "Computer Science Quiz", date: "2023-06-05", participants: 35, avgScore: 92 },
 ]
 
-// const upcomingQuizzes = [
-//   // { id: 3, name: "History Quiz", date: "2023-06-05", time: "14:00", participants: 20 },
-//   // { id: 4, name: "English Quiz", date: "2023-06-10", time: "10:30", participants: 28 },
-//   // { id: 6, name: "Physics Quiz", date: "2023-06-15", time: "15:45", participants: 18 },
-//   // { id: 9, name: "Chemistry Quiz", date: "2023-06-20", time: "11:00", participants: 25 },
-//   // { id: 10, name: "Biology Quiz", date: "2023-06-25", time: "13:30", participants: 22 },
-//   // { id: 13, name: "Economics Quiz", date: "2023-06-30", time: "09:00", participants: 30 },
-//   // { id: 14, name: "Psychology Quiz", date: "2023-07-05", time: "14:15", participants: 27 },
-// ]
-
-
 export default async function CourseDetails({ params }: { params: { courseId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
@@ -54,8 +43,6 @@ export default async function CourseDetails({ params }: { params: { courseId: st
     console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
   };
 
-
-
   return (
     <div className="flex flex-col min-h-screen">
       <header>
@@ -63,11 +50,128 @@ export default async function CourseDetails({ params }: { params: { courseId: st
       </header>
       <main className="flex-grow p-6 bg-background">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="students">
+          <Tabs defaultValue="quizzes">
             <TabsList>
-              <TabsTrigger value="students">Students</TabsTrigger>
               <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+              <TabsTrigger value="students">Students</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="quizzes">
+              <div className="container mx-auto p-6 max-w-4xl">
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-3xl font-bold text-primary">Quiz Manager</h1>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="lg">
+                        <Plus className="mr-2 h-5 w-5" />
+                        Create New Quiz
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Create New Quiz</DialogTitle>
+                      </DialogHeader>
+                      <CreateQuizForm courseId={course} branch={branchCode} />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <Tabs defaultValue="upcoming" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="upcoming">Upcoming Quizzes</TabsTrigger>
+                    <TabsTrigger value="previous">Previous Quizzes</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="upcoming">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Upcoming Quizzes</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                          <div className="max-h-[400px] overflow-auto">
+                            <Table>
+                              <TableHeader className="sticky top-0 bg-background z-10">
+                                <TableRow>
+                                  <TableHead className="w-[200px]">Quiz Name</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Time</TableHead>
+                                  <TableHead>Duration</TableHead>
+                                  <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              {Array.isArray(upcomingQuizzes) ? (
+                              <TableBody>
+                                {upcomingQuizzes.map((quiz) => (
+                                  <TableRow key={quiz.id}>
+                                    <TableCell className="font-medium">{quiz.title}</TableCell>
+                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
+                                    <TableCell>{quiz.duration} minutes</TableCell>
+                                    <TableCell className="text-right">
+                                      <form action="/edit-quiz">
+                                        <input type="hidden" name="quizId" value={quiz.id} />
+                                        <Button variant="outline" size="sm">
+                                          <Eye className="mr-2 h-4 w-4" />
+                                        </Button>
+                                      </form>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                              ) : <p>An error occurred</p>}
+                            </Table>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  <TabsContent value="previous">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Previous Quizzes</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                          <div className="max-h-[400px] overflow-auto">
+                            <Table>
+                              <TableHeader className="sticky top-0 bg-background z-10">
+                                <TableRow>
+                                  <TableHead className="w-[200px]">Quiz Name</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Avg. Score</TableHead>
+                                  <TableHead className="text-right">Action</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {previousQuizzes.map((quiz) => (
+                                  <TableRow key={quiz.id}>
+                                    <TableCell className="font-medium">{quiz.name}</TableCell>
+                                    <TableCell>{quiz.date}</TableCell>
+                                    <TableCell>{quiz.avgScore}%</TableCell>
+                                    <TableCell className="text-right">
+                                      <form action="/view-performance">
+                                        <input type="hidden" name="quizId" value={quiz.id} />
+                                        <Button variant="outline" size="sm">
+                                          <Eye className="mr-2 h-4 w-4" />
+                                          View
+                                        </Button>
+                                      </form>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </TabsContent>
 
             <TabsContent value="students">
               <Card>
@@ -128,132 +232,9 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <TabsContent value="quizzes">
-              <div className="container mx-auto p-6 max-w-4xl">
-                <div className="flex justify-between items-center mb-6">
-                  <h1 className="text-3xl font-bold text-primary">Quiz Manager</h1>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="lg">
-                        <Plus className="mr-2 h-5 w-5" />
-                        Create New Quiz
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Create New Quiz</DialogTitle>
-                      </DialogHeader>
-                      <CreateQuizForm courseId={course} branch={branchCode} />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-
-                <Tabs defaultValue="upcoming" className="space-y-4">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="upcoming">Upcoming Quizzes</TabsTrigger>
-                    <TabsTrigger value="previous">Previous Quizzes</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="upcoming">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Upcoming Quizzes</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                          <div className="max-h-[400px] overflow-auto">
-                            <Table>
-                              <TableHeader className="sticky top-0 bg-background z-10">
-                                <TableRow>
-                                  <TableHead className="w-[200px]">Quiz Name</TableHead>
-                                  <TableHead>Date</TableHead>
-                                  <TableHead>Time</TableHead>
-                                  <TableHead>Duration</TableHead>
-                                  {/* <TableHead>Participants</TableHead> */}
-                                  <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              {Array.isArray(upcomingQuizzes) ? (
-                              <TableBody>
-                                {upcomingQuizzes.map((quiz) => (
-                                  <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.title}</TableCell>
-                                    <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                    <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
-                                    {/* <TableCell>{quiz.participants}</TableCell> */}
-                                    <TableCell>{quiz.duration} minutes</TableCell>
-                                    <TableCell className="text-right">
-                                      <form action="/edit-quiz">
-                                        <input type="hidden" name="quizId" value={quiz.id} />
-                                        <Button variant="outline" size="sm">
-                                          <Eye className="mr-2 h-4 w-4" />
-                                          {/* View */}
-                                        </Button>
-                                      </form>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                              ) : <p>An error occurred</p>}
-                            </Table>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="previous">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Previous Quizzes</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                          <div className="max-h-[400px] overflow-auto">
-                            <Table>
-                              <TableHeader className="sticky top-0 bg-background z-10">
-                                <TableRow>
-                                  <TableHead className="w-[200px]">Quiz Name</TableHead>
-                                  <TableHead>Date</TableHead>
-                                  {/* <TableHead>Participants</TableHead> */}
-                                  <TableHead>Avg. Score</TableHead>
-                                  <TableHead className="text-right">Action</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {previousQuizzes.map((quiz) => (
-                                  <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.name}</TableCell>
-                                    <TableCell>{quiz.date}</TableCell>
-                                    {/* <TableCell>{quiz.participants}</TableCell> */}
-                                    <TableCell>{quiz.avgScore}%</TableCell>
-                                    <TableCell className="text-right">
-                                      <form action="/view-performance">
-                                        <input type="hidden" name="quizId" value={quiz.id} />
-                                        <Button variant="outline" size="sm">
-                                          <Eye className="mr-2 h-4 w-4" />
-                                          View
-                                        </Button>
-                                      </form>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
       </main>
     </div>
   );
 }
-
