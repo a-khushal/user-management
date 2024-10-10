@@ -15,7 +15,7 @@ import { fetchStudents } from '@/actions/teacher/fetchStudents';
 import { authOptions } from '@/app/authStore/auth';
 import { CreateQuizForm } from '@/components/teacher/CreateQuizForm';
 import { fetchQuiz } from '@/actions/teacher/fetchQuiz';
-import { DeleteButton } from '@/components/teacher/DeleteButton';
+import { DeleteButton } from '@/components/teacher/DeleteQuizButton';
 
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
