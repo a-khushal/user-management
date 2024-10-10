@@ -117,7 +117,7 @@ model Question {
   numberOfOptions     Int
  options             Option[]
   quizId              Int
-  quiz                Quiz         @relation(fields: [quizId], references: [id])
+  quiz                Quiz         @relation(fields: [quizId], references: [id],onDelete:Cascade)
 }
 
 model Option {
@@ -125,7 +125,7 @@ model Option {
   optionText       String 
   optionMark       String
   questionId       Int
-  question         Question       @relation(fields: [questionId], references: [id])
+  question         Question       @relation(fields: [questionId], references: [id],onDelete:Cascade)
 }
 
 enum Role {
