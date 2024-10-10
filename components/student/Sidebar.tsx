@@ -416,50 +416,49 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
         </Card>
       </TabsContent>
       <TabsContent value="quizzes">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Quizzes</CardTitle>
-            <CardDescription>Scheduled quizzes for your courses</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[300px] md:h-[400px] overflow-y-auto 
-              [&::-webkit-scrollbar]:w-2
-              [&::-webkit-scrollbar-track]:rounded-full
-              [&::-webkit-scrollbar-track]:bg-gray-100
-              [&::-webkit-scrollbar-thumb]:rounded-full
-              [&::-webkit-scrollbar-thumb]:bg-gray-300
-              dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-              dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-              {loading ? (
-                <p className="text-center">Loading quizzes...</p>
-              ) : error ? (
-                <p className="text-center text-red-500">{error}</p>
-              ) : upcomingQuizzes.length === 0 ? (
-                <p className="text-center">No upcoming quizzes found.</p>
-              ) : (
-                <ul className="space-y-4 mr-2">
-                  {upcomingQuizzes.map((quiz) => (
-                    <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
-                      <h3 className="font-semibold text-lg">{quiz.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Course: {quiz.course.title}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(quiz.date).toLocaleDateString()}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
-                      <Button variant="outline" size="sm" className="mt-2">
-                        {isExpired({quizDate:quiz.date,quizTime:quiz.endTime})}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </TabsContent>
+  <Card>
+    <CardHeader>
+      <CardTitle>Upcoming Quizzes</CardTitle>
+      <CardDescription>Scheduled quizzes for your courses</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <ScrollArea className="h-[300px] md:h-[400px] overflow-y-auto 
+        [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:rounded-full
+        [&::-webkit-scrollbar-track]:bg-gray-100
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-gray-300
+        dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+        dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+        {loading ? (
+          <p className="text-center">Loading quizzes...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : upcomingQuizzes.length === 0 ? (
+          <p className="text-center">No upcoming quizzes found.</p>
+        ) : (
+          <ul className="space-y-4 mr-2">
+            {upcomingQuizzes.map((quiz) => (
+              <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
+                <h3 className="font-semibold text-lg">{quiz.title}</h3> {/* Apply font styles here */}
+                <p className="text-sm text-gray-600 dark:text-gray-400">Course: {quiz.course.title}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(quiz.date).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
+                <Button variant="outline" size="sm" className="mt-2">
+                  {isExpired({ quizDate: quiz.date, quizTime: quiz.endTime })}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </ScrollArea>
+    </CardContent>
+  </Card>
+</TabsContent>
+
     </Tabs>
   </div>
 }
