@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,7 +22,7 @@ interface Option {
   optionMark: string,
 }
 
-interface QuizData {
+export interface QuizData {
   questionText: string,
   defaultMark: string
   numberOfOptions: number,
@@ -41,10 +41,65 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const [customDuration, setCustomDuration] = useState<string>("")
   const [fileName, setFileName] = useState("")
   const [fileUploaded, setFileUploaded] = useState(false);
+  const [quizDataState, setQuizDataState] = useState<QuizData[]>([]);
+  const [createQuizBtn, setCreateQuizBtn] = useState(false);
 
   const handleDownloadSample = () => {
     window.location.href = "/teacher/sampleWordQuizTemplate.docx";
   }
+
+  useEffect(() => {
+    console.log(JSON.stringify(quizDataState, null, 2));
+    const handleCreateQuiz = async () => {
+      if (quizDataState.length > 0 && createQuizBtn === true) {
+        // alert(quizDataState[0].questionText)
+        // return;
+        const dateTime = `${quizDate}T${quizStartTime}:00`;
+        const quizdate = new Date(quizDate);
+        const stime = new Date(dateTime);
+        const quiztime = `${quizDate}T${quizEndTime}:00`;
+        const etime = new Date(quiztime);
+        //@ts-ignore
+        const teacher: Teacher['initial'] = session.data?.user?.initial;
+
+        const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration);
+
+        if (isNaN(finalDuration)) {
+          toast({
+            title: "Please select or enter a valid quiz duration",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const result = await createQuiz({
+          title: quizName,
+          date: quizdate,
+          startTime: stime,
+          endTime: etime,
+          duration: finalDuration,
+          totalQuestions: 10,
+          teacher: teacher,
+          questions: quizDataState,
+          course: courseId,
+          branch: branch
+        });
+
+        if (result && result.message) {
+          toast({
+            title: result.message,
+          });
+        } else if (result.error) {
+          toast({
+            title: result.error,
+            variant: "destructive",
+          });
+        }
+      }
+    }
+
+    handleCreateQuiz();
+  }, [quizDataState, createQuizBtn])
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -99,7 +154,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
         for (let j = 0; j < questionObj.numberOfOptions; j++) {
           const optionText = lines[i + j * 3];
           const optionMark = lines[i + j * 3 + 1];
-          if (optionText === '000' || optionText === '001') {
+          if (optionText === '000' || optionText === '001' || optionText === "") {
             break;
           }
           questionObj.options.push({
@@ -109,7 +164,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
         }
         quizData.push(questionObj);
       });
-      console.log(JSON.stringify(quizData, null, 2));
+      setQuizDataState(quizData);
     } catch (error) {
       console.error("Error processing file:", error);
     }
@@ -128,54 +183,13 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
     setQuizDuration('custom');
   }
 
-  const handleClick = async () => {
+  const handleClick = () => {
     if (fileUploaded == false) {
       toast({
         title: "Please select or upload a word file with quiz questions",
         variant: "destructive",
       });
       return;
-    }
-
-    const dateTime = `${quizDate}T${quizStartTime}:00`;
-    const quizdate = new Date(quizDate);
-    const stime = new Date(dateTime);
-    const quiztime = `${quizDate}T${quizEndTime}:00`;
-    const etime = new Date(quiztime);
-    //@ts-ignore
-    const teacher: Teacher['initial'] = session.data?.user?.initial;
-
-    const finalDuration = quizDuration === 'custom' ? parseInt(customDuration) : parseInt(quizDuration);
-
-    if (isNaN(finalDuration)) {
-      toast({
-        title: "Please select or enter a valid quiz duration",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const result = await createQuiz({
-      title: quizName,
-      date: quizdate,
-      startTime: stime,
-      endTime: etime,
-      duration: finalDuration,
-      totalQuestions: 10,
-      teacher: teacher,
-      course: courseId,
-      branch: branch
-    });
-
-    if (result && result.message) {
-      toast({
-        title: result.message,
-      });
-    } else if (result.error) {
-      toast({
-        title: result.error,
-        variant: "destructive",
-      });
     }
   }
 
@@ -280,7 +294,11 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
           />
         </div>
       </div>
-      <Button type="button" className="w-full" onClick={handleClick}>
+      <Button type="button" className="w-full"
+        onClick={() => {
+          handleClick();
+          setCreateQuizBtn(true);
+        }}>
         Create Quiz
       </Button>
     </form>
