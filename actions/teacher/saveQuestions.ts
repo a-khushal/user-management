@@ -33,7 +33,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
 
         for (const question of questions) {
           let updatedQuestion;
-          const existingQuestion = question.id 
+          const existingQuestion = question.id
             ? existingQuestions.find(q => q.id === question.id)
             : null;
 
@@ -96,7 +96,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                     where: { id: option.id },
                     data: {
                       optionText: option.optionText,
-                      optionMark: option.optionMark,
+                      optionMark: option.optionMark.toString() === '0' ? '000' : '001',
                     },
                   })
                   changesMade = true;
@@ -106,7 +106,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                   data: {
                     questionId: questionId,
                     optionText: option.optionText,
-                    optionMark: option.optionMark,
+                    optionMark: option.optionMark.toString() === '0' ? '000' : '001',
                   },
                 })
                 changesMade = true;
@@ -116,7 +116,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                 data: {
                   questionId: questionId,
                   optionText: option.optionText,
-                  optionMark: option.optionMark,
+                  optionMark: option.optionMark.toString() === '0' ? '000' : '001',
                 },
               })
               changesMade = true;
@@ -137,8 +137,8 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
           changesMade = true;
         }
       }, {
-        timeout: 10000, 
-        maxWait: 15000, 
+        timeout: 10000,
+        maxWait: 15000,
       })
 
       if (changesMade) {
@@ -150,7 +150,6 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
     } catch (error) {
       retries++
       if (error.code === 'P2028' && retries < MAX_RETRIES) {
-        
         await new Promise(resolve => setTimeout(resolve, 1000 * retries))
       } else {
         console.error('Error updating quiz:', error)
@@ -158,6 +157,5 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
       }
     }
   }
-
   return { success: false, message: 'Failed to update quiz after multiple attempts' }
 }

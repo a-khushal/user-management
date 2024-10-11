@@ -14,35 +14,34 @@ export interface quiz {
   title: string,
   date: Date,
   startTime: Date,
-  endTime:Date,
-  duration:number
+  endTime: Date,
+  duration: number
 }
 export interface squiz {
   id: number,
   title: string,
   date: Date,
   startTime: Date,
-  endTime:Date,
-  duration:number,
-  course:Course
+  endTime: Date,
+  duration: number,
+  course: Course
 }
 
-export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['initial'],course:Course['courseId'],branch:Branch['code'] }) {
+export async function fetchQuiz({ initial, courseId, branchCode }: { initial: Teacher['initial'], courseId: Course['courseId'], branchCode: Branch['code'] }) {
   try {
     const quizzes: quiz[] = await db.quiz.findMany({
       where: {
         teacherInitial: initial,
-        branchCode: branch,
-        courseId: course
-
+        branchCode: branchCode,
+        courseId: courseId
       },
       select: {
         id: true,
         title: true,
         startTime: true,
-        endTime:true,
+        endTime: true,
         date: true,
-        duration:true
+        duration: true
       }
     })
     return quizzes;
@@ -54,30 +53,30 @@ export async function fetchQuiz({ initial,course,branch }: { initial: Teacher['i
 }
 
 
-export async function getQuiz({courses,branch}:{courses:Course['courseId'][],branch?:Branch['code']}){
-  try{
-    const quizzes=await db.quiz.findMany({
-      where:{
-        courseId:{
-          in:courses
+export async function getQuiz({ courses, branch }: { courses: Course['courseId'][], branch?: Branch['code'] }) {
+  try {
+    const quizzes = await db.quiz.findMany({
+      where: {
+        courseId: {
+          in: courses
         },
-        branchCode:branch
+        branchCode: branch
       },
-      select:{
-        course:true,
-        id:true,
-        title:true,
-        startTime:true,
-        endTime:true,
-        date:true,
-        duration:true
+      select: {
+        course: true,
+        id: true,
+        title: true,
+        startTime: true,
+        endTime: true,
+        date: true,
+        duration: true
       }
     })
     return quizzes
-  }catch(e){
+  } catch (e) {
     console.log("Error occured")
-    return{
-      error:"Error fetching data"
+    return {
+      error: "Error fetching data"
     }
   }
 }
