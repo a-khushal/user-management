@@ -27,7 +27,9 @@ const formSchema = z.object({
   }),
 });
 
-export default function AddBranchForm() {
+export default function AddBranchForm({ semester }: {
+  semester: number
+}) {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,7 +43,8 @@ export default function AddBranchForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const props = {
       name: values.branchName,
-      code: values.branchCode.toUpperCase()
+      code: values.branchCode.toUpperCase(),
+      semester: semester
     };
     const res = await addBranch(props);
 

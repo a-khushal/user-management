@@ -1,4 +1,5 @@
 'use client'
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -7,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { BookOpen, Download, MapPin, Pencil, PlusCircle, RefreshCw, Upload, UserPlus, Users } from "lucide-react";
 import { allStudents } from "@/actions/allStudents";
 import AddBranchForm from "./AddBranchForm";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export interface Student {
   name: string,
@@ -16,12 +19,13 @@ export interface Student {
   branchCode: string,
 }
 
-export default function AllBranches({ branches }: {
+export default function AllBranches({ branches, semester }: {
   branches: {
     id: number,
     code: string,
     name: string,
-  }[] | undefined
+  }[] | undefined,
+  semester: number,
 }) {
   const [selectedBranch, setSelectedBranch] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -29,16 +33,15 @@ export default function AllBranches({ branches }: {
   const fileInputRef = useRef(null)
   const [students, setStudents] = useState<Student[] | { error: string }>();
   const [code, setCode] = useState("");
+  const session = useSession();
+
+  // @ts-ignore
+  if (session.data?.user?.role === 'STUDENT') {
+    redirect("/");
+  }
 
   const handleDownloadTemplate = () => {
     window.location.href = "/admin/addnewstudents.xls";
-    // setIsProcessing(true)
-    // setProcessingType(type)
-    // setTimeout(() => {
-    //   setIsProcessing(false)
-    //   setProcessingType("")
-    //   alert(`${type} template downloaded successfully!`)
-    // }, 2000)
   }
 
   const handleFileUpload = (event: any, type: any) => {
@@ -62,8 +65,6 @@ export default function AllBranches({ branches }: {
   }
 
   useEffect(() => {
-    setStudents([]);
-
     const getStudents = async () => {
       const students = await allStudents({ code });
       setStudents(students);
@@ -73,21 +74,21 @@ export default function AllBranches({ branches }: {
 
   }, [code]);
 
+
+  //@ts-ignore
   return (
     <div className="flex flex-col min-h-screen">
+      {JSON.stringify(session)}
       <main className="flex-grow p-6 bg-background">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold">College Branches</h2>
-            {/* <Button> */}
-            {/*   <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch */}
-            {/* </Button> */}
-            <AddBranchForm />
+            <h2 className="text-3xl font-bold">Branches</h2>
+            <AddBranchForm semester={semester} />
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {branches?.map((branch) => (
               <Dialog key={branch.id}>
-                <DialogTrigger asChild>
+                <DialogTrigger asChild onClick={() => setCode(branch.code)}>
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <CardTitle>{branch.name}</CardTitle>
@@ -107,7 +108,7 @@ export default function AllBranches({ branches }: {
                       {/* </div> */}
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full" onClick={() => setCode(branch.code)}>View Students</Button>
+                      <Button variant="outline" className="w-full" >View Students</Button>
                     </CardFooter>
                   </Card>
                 </DialogTrigger>
@@ -217,3 +218,4 @@ export default function AllBranches({ branches }: {
     </div >
   );
 }
+

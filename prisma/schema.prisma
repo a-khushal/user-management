@@ -64,6 +64,7 @@ model Branch {
   id        Int              @id @default(autoincrement())
   name      String
   code      String           @unique
+  semester  Int                
   students  Student[]
   teachers  BranchTeacher[]
   quizzes   Quiz[]
@@ -115,7 +116,7 @@ model Question {
   questionText        String
   defaultMark         String
   numberOfOptions     Int
- options             Option[]
+  options             Option[]
   quizId              Int
   quiz                Quiz         @relation(fields: [quizId], references: [id],onDelete:Cascade)
 }
