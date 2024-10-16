@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { PlusCircle, Trash2 } from "lucide-react"
+import { PlusCircle, Trash2,LucideLoader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import fetchQuestions from "@/actions/teacher/fetchQuestions"
 import { saveQuestions } from "@/actions/teacher/saveQuestions"
@@ -170,7 +170,11 @@ export default function EditQuiz() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+    return (
+      <div className="flex justify-center items-center h-screen">
+      <LucideLoader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+    )
   }
 
   return (

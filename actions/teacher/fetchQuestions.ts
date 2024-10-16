@@ -35,3 +35,54 @@ try{
     console.log(e);
 }
 } 
+
+export async function getQuestions({quizId}:{quizId:number}){
+try{
+  const  res = await db.quiz.findUnique({
+        where:{
+            id:quizId
+        },
+        select:{
+            duration:true,
+            questions:{
+                select:{
+                    id:true,
+                    questionText:true,
+                    defaultMark:true,
+                    numberOfOptions:true,
+                    options:{
+                        select:{
+                            id:true,
+                            optionMark:true,
+                            optionText:true
+                        }
+                    }
+                }
+            }
+        }
+    })
+    if(res&&res.questions&&res.duration)
+        return res;
+}catch(e){
+    console.log(e);
+    return{
+        error:"Error fetching data"
+    }
+}
+}
+
+export async function update({quizId}:{quizId:number}){
+try{
+    const res=await db.quiz.update({
+        where:{
+            id:quizId
+        },
+        data:{
+            attempted:true
+        }
+    })
+    console.log("Updated")
+}catch(e){
+    console.log(e);
+}
+}

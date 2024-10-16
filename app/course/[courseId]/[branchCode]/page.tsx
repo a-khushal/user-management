@@ -122,8 +122,8 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                       <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
                                       <TableCell>{quiz.duration} minutes</TableCell>
                                       <TableCell className="text-right">
-                                        <form action="/edit-quiz">
-                                          <input type="hidden" name="quizId" value={quiz.id} />
+                                      <form action={`/edit-quiz/${quiz.id}`} method="get">
+                        
                                           <Button variant="outline" size="sm">
                                             <Eye className="mr-2 h-4 w-4" />
                                           </Button>
