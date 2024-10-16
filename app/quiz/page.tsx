@@ -47,7 +47,7 @@ export default function StudentQuiz() {
         router.back()
         return
       }
-    
+
       setIsLoading(true)
       try {
         const response = await getQuestions({ quizId: parseInt(quizId) })
@@ -174,7 +174,7 @@ export default function StudentQuiz() {
             <h2 className="text-xl font-semibold mb-4">{question.questionText}</h2>
             <RadioGroup
               value={selectedOptions[question.id]?.toString()}
-              onValueChange={(value) => handleOptionSelect(question.id, parseInt(value))}
+              onValueChange={(value: any) => handleOptionSelect(question.id, parseInt(value))}
             >
               {question.options.map((option) => (
                 <div key={option.id} className="flex items-center space-x-2 mb-2">

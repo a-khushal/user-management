@@ -17,12 +17,13 @@ export interface Student {
   branchCode: string,
 }
 
-export default function AllBranches({ branches }: {
+export default function AllBranches({ branches, semester }: {
   branches: {
     id: number,
     code: string,
     name: string,
-  }[] | undefined
+  }[] | undefined,
+  semester: number
 }) {
   const [selectedBranch, setSelectedBranch] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
