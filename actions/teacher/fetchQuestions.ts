@@ -44,6 +44,7 @@ try{
         },
         select:{
             duration:true,
+            attempted:true,
             questions:{
                 select:{
                     id:true,

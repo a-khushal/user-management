@@ -95,6 +95,7 @@ model StudentTeacher {
 
 model Quiz {
   id              Int           @id @default(autoincrement())
+  attempted       Boolean       @default(false)
   title           String
   duration        Int           @default(10)
   date            DateTime

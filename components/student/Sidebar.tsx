@@ -340,12 +340,12 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
     router.push(`dashboard`)
   }
 
-  const isExpired =({quizId,quizDate,quizTime}:{quizId:number,quizDate:Date,quizTime:Date}) =>{
+  const isExpired =({quizId,quizDate,quizTime,attempted}:{quizId:number,quizDate:Date,quizTime:Date,attempted:boolean}) =>{
     const endtime=new Date(quizDate)
     endtime.setTime(quizTime.getTime())
     const now=new Date();
     const expired= now >endtime
-    console.log(endtime)
+    console.log("Attempted status is"+attempted);
     return (
       <div>
       {expired? (
@@ -353,9 +353,15 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
         Quiz has expired contact Instructor
               </Button>
       ):(
-        <Button variant="outline" size="sm" className="mt-2" onClick={()=>{router.push(`/quiz?quizId=${quizId}`)}}>
+        attempted ? (
+          <Button variant="outline" size="sm" className="mt-2" >
+          Already attempted
+                </Button>
+        ):(
+<Button variant="outline" size="sm" className="mt-2" onClick={()=>{router.push(`/quiz?quizId=${quizId}`)}}>
           Take quiz
                 </Button>
+        )
       )}
       </div>
     )
@@ -452,7 +458,7 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
                 <div>
-                  {isExpired({ quizId:quiz.id,quizDate: quiz.date, quizTime: quiz.endTime })}
+                  {isExpired({ quizId:quiz.id,quizDate: quiz.date, quizTime: quiz.endTime ,attempted:quiz.attempted})}
                 </div>
               </li>
             ))}

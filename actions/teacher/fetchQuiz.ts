@@ -19,6 +19,7 @@ export interface quiz {
 }
 export interface squiz {
   id: number,
+  attempted:boolean,
   title: string,
   date: Date,
   startTime: Date,
@@ -65,6 +66,7 @@ export async function getQuiz({courses,branch}:{courses:Course['courseId'][],bra
       },
       select:{
         course:true,
+        attempted:true,
         id:true,
         title:true,
         startTime:true,
