@@ -35,11 +35,7 @@ export default function EditQuiz() {
       setIsLoading(true)
       try {
         const fetchedQuestions = await fetchQuestions({ quizId: parseInt(quizId as string) })
-        if (!fetchedQuestions) {
-          setQuestions([])
-        } else {
-          setQuestions(fetchedQuestions)
-        }
+        setQuestions(fetchedQuestions)
       } catch (error) {
         console.error("Error fetching questions:", error)
         toast({
@@ -55,16 +51,16 @@ export default function EditQuiz() {
   }, [quizId, toast])
 
   const handleQuestionChange = (questionId: number, field: keyof Question, value: string | number) => {
-    setQuestions(questions.map(q =>
+    setQuestions(questions.map(q => 
       q.id === questionId ? { ...q, [field]: value } : q
     ))
   }
 
   const handleOptionChange = (questionId: number, optionId: number, field: keyof Option, value: string) => {
-    setQuestions(questions.map(q =>
+    setQuestions(questions.map(q => 
       q.id === questionId ? {
         ...q,
-        options: q.options.map(o =>
+        options: q.options.map(o => 
           o.id === optionId ? { ...o, [field]: value } : o
         )
       } : q
@@ -84,15 +80,15 @@ export default function EditQuiz() {
   }
 
   const addOption = (questionId: number) => {
-    setQuestions(questions.map(q =>
+    setQuestions(questions.map(q => 
       q.id === questionId ? {
         ...q,
         options: [
-          ...q.options,
-          {
-            id: Math.max(0, ...q.options.map(o => o.id)) + 1,
-            optionText: '',
-            optionMark: '0'
+          ...q.options, 
+          { 
+            id: Math.max(0, ...q.options.map(o => o.id)) + 1, 
+            optionText: '', 
+            optionMark: '0' 
           }
         ],
         numberOfOptions: q.numberOfOptions + 1
@@ -105,7 +101,7 @@ export default function EditQuiz() {
   }
 
   const removeOption = (questionId: number, optionId: number) => {
-    setQuestions(questions.map(q =>
+    setQuestions(questions.map(q => 
       q.id === questionId ? {
         ...q,
         options: q.options.filter(o => o.id !== optionId),
@@ -117,8 +113,8 @@ export default function EditQuiz() {
   const validateQuestions = (): string | null => {
     for (let i = 0; i < questions.length; i++) {
       const question = questions[i];
-      const questionNumber = i + 1;
-
+      const questionNumber = i + 1; 
+  
       if (!question.questionText.trim()) {
         return `Question ${questionNumber} is missing text.`;
       }
@@ -130,8 +126,8 @@ export default function EditQuiz() {
       }
       for (let j = 0; j < question.options.length; j++) {
         const option = question.options[j];
-        const optionNumber = j + 1;
-
+        const optionNumber = j + 1; 
+  
         if (!option.optionText.trim()) {
           return `Option ${optionNumber} in question ${questionNumber} is missing text.`;
         }
@@ -151,7 +147,7 @@ export default function EditQuiz() {
         description: error,
         variant: "destructive",
       })
-      return;
+      return
     }
 
     setIsLoading(true)
@@ -183,8 +179,8 @@ export default function EditQuiz() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-10 flex justify-center w-full mt-4">Edit Quiz</h1>
-      {Array.isArray(questions) ? (questions.map((question, index) => (
+      <h1 className="text-2xl font-bold mb-4">Edit Quiz</h1>
+      {questions.map((question, index) => (
         <div key={question.id} className="mb-8 p-4 border rounded-lg">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-semibold">Question {index + 1}</h2>
@@ -198,7 +194,6 @@ export default function EditQuiz() {
             placeholder="Enter question text"
             className="mb-2"
           />
-          <h3 className="font-semibold mt-4 mb-2">Default Mark:</h3>
           <Input
             type="number"
             value={question.defaultMark}
@@ -217,7 +212,7 @@ export default function EditQuiz() {
               />
               <Input
                 type="number"
-                value={option.optionMark === '000' ? 0 : option.optionMark === '001' ? 1 : option.optionMark}
+                value={option.optionMark}
                 onChange={(e) => handleOptionChange(question.id, option.id, 'optionMark', e.target.value)}
                 placeholder="Mark"
                 className="w-20 mr-2"
@@ -231,7 +226,7 @@ export default function EditQuiz() {
             <PlusCircle className="h-4 w-4 mr-2" /> Add Option
           </Button>
         </div>
-      ))) : <div className="flex justify-center items-center h-screen">No Quiz Questions found. Try creating a new quiz</div>}
+      ))}
       <div className="flex justify-between items-center mt-4">
         <Button onClick={addQuestion}>
           <PlusCircle className="h-4 w-4 mr-2" /> Add Question

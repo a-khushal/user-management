@@ -3,17 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import db from '../db/index'
 
-export async function addBranch({ name, code, semester }: {
+export async function addBranch({ name, code }: {
   name: string,
-  code: string,
-  semester: number
+  code: string
 }) {
   try {
     await db.branch.create({
       data: {
         name: name,
         code: code,
-        semester: semester
       }
     })
 

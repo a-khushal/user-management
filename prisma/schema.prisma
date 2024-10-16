@@ -96,6 +96,7 @@ model StudentTeacher {
 
 model Quiz {
   id              Int           @id @default(autoincrement())
+  attempted       Boolean       @default(false)
   title           String
   duration        Int           @default(10)
   date            DateTime
@@ -116,7 +117,7 @@ model Question {
   questionText        String
   defaultMark         String
   numberOfOptions     Int
-  options             Option[]
+ options             Option[]
   quizId              Int
   quiz                Quiz         @relation(fields: [quizId], references: [id],onDelete:Cascade)
 }

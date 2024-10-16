@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, Plus } from "lucide-react";
+import { Edit, Eye, Pencil, Plus } from "lucide-react";
 import { Appbar } from '@/components/Appbar';
 import { getServerSession } from 'next-auth';
 import { fetchStudents } from '@/actions/teacher/fetchStudents';
@@ -13,7 +16,6 @@ import { authOptions } from '@/app/authStore/auth';
 import { CreateQuizForm } from '@/components/teacher/CreateQuizForm';
 import { fetchQuiz } from '@/actions/teacher/fetchQuiz';
 import { DeleteButton } from '@/components/teacher/DeleteQuizButton';
-import Link from 'next/link'
 
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
@@ -44,11 +46,11 @@ export default async function CourseDetails({ params }: { params: { courseId: st
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {
     redirect('/');
   }
-  const courseId = params.courseId;
+  const course = params.courseId;
   const branchCode = params.branchCode;
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
-  const upcomingQuizzes = await fetchQuiz({ initial, courseId, branchCode });
+  const upcomingQuizzes = await fetchQuiz({ initial, course, branch: branchCode });
 
   const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
     // Server-side action to handle quiz creation
@@ -83,7 +85,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                       <DialogHeader>
                         <DialogTitle>Create New Quiz</DialogTitle>
                       </DialogHeader>
-                      <CreateQuizForm courseId={courseId} branch={branchCode} />
+                      <CreateQuizForm courseId={course} branch={branchCode} />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -120,17 +122,15 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                       <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
                                       <TableCell>{quiz.duration} minutes</TableCell>
                                       <TableCell className="text-right">
-                                        {/* <form action="/edit-quiz"> */}
-                                        {/*   <input type="hidden" name="quizId" value={quiz.id} /> */}
-                                        <Link href={`${branchCode}/edit/${quiz.id}`}>
-                                          <Button variant="outline" size="sm" >
+                                      <form action={`/edit-quiz/${quiz.id}`} method="get">
+                        
+                                          <Button variant="outline" size="sm">
                                             <Eye className="mr-2 h-4 w-4" />
                                           </Button>
-                                        </Link>
-                                        {/* </form> */}
+                                        </form>
                                       </TableCell>
                                       <TableCell className="text-right">
-                                        <DeleteButton id={quiz.id} initial={initial} courseId={courseId} branch={branchCode}></DeleteButton>
+                                        <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
                                       </TableCell>
                                     </TableRow>
                                   ))}
@@ -252,3 +252,16 @@ export default async function CourseDetails({ params }: { params: { courseId: st
     </div>
   );
 }
+
+
+
+// const CoursePage = ({ params }: any) => {
+//     return (
+//     <div>
+//       <h1>Course ID: {courseId}</h1>
+//     </div>
+//   );
+// };
+//
+// export default CoursePage;
+//
