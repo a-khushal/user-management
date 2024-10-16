@@ -64,7 +64,7 @@ export default function AddBranchForm({ semester }: {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="default">
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch
+          <PlusCircle className="mr-2 h-4 w-4" />Create New Branch
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

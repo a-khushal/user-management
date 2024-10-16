@@ -64,7 +64,7 @@ model Branch {
   id        Int              @id @default(autoincrement())
   name      String
   code      String           @unique
-  semester  Int                
+  semester  Int              @default(0)
   students  Student[]
   teachers  BranchTeacher[]
   quizzes   Quiz[]

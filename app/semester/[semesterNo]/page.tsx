@@ -5,7 +5,7 @@ export async function fetchAllBranches({ semester }: {
   semester: number
 }) {
   try {
-    // console.log(semester)
+    console.log(semester)
     const branches = await db.branch.findMany({
       where: {
         semester
@@ -22,8 +22,8 @@ export default async function Semester({ params }: any) {
   const branches = await fetchAllBranches({ semester: parseInt(semester) });
 
   return (
-    <>
+    <div>
       <AllBranches branches={branches} semester={parseInt(semester)} />
-    </>
+    </div>
   )
 }
