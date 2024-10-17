@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Download, Upload } from "lucide-react"
+import { Download, Loader, Upload } from "lucide-react"
 import { createQuiz } from "@/actions/teacher/createQuiz"
 import { useToast } from "@/hooks/use-toast"
 import { Teacher } from "@prisma/client"
@@ -43,17 +43,19 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [quizDataState, setQuizDataState] = useState<QuizData[]>([]);
   const [createQuizBtn, setCreateQuizBtn] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleDownloadSample = () => {
     window.location.href = "/teacher/sampleWordQuizTemplate.docx";
   }
 
   useEffect(() => {
-    console.log(JSON.stringify(quizDataState, null, 2));
+    // console.log(JSON.stringify(quizDataState, null, 2));
     const handleCreateQuiz = async () => {
       if (quizDataState.length > 0 && createQuizBtn === true) {
         // alert(quizDataState[0].questionText)
         // return;
+        setLoading(true);
         const dateTime = `${quizDate}T${quizStartTime}:00`;
         const quizdate = new Date(quizDate);
         const stime = new Date(dateTime);
@@ -89,11 +91,13 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
           toast({
             title: result.message,
           });
+          setLoading(false)
         } else if (result.error) {
           toast({
             title: result.error,
             variant: "destructive",
           });
+          setLoading(false);
         }
       }
     }
@@ -241,7 +245,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
         />
       </div>
       <div>
-        <Label htmlFor="quizDuration">Quiz Duration (minutes)</Label>
+        <Label htmlFor="quizDuration">Quiz Duration</Label>
         <Select value={quizDuration} onValueChange={handleDurationChange} required>
           <SelectTrigger id="quizDuration">
             <SelectValue placeholder="Select quiz duration" />
@@ -251,7 +255,7 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
             <SelectItem value="30">30 minutes</SelectItem>
             <SelectItem value="45">45 minutes</SelectItem>
             <SelectItem value="60">1 hour</SelectItem>
-            <SelectItem value="90">1 hour 30 minutes</SelectItem>
+            <SelectItem value="90">1.5 hours</SelectItem>
             <SelectItem value="120">2 hours</SelectItem>
             <SelectItem value="custom">Custom duration</SelectItem>
           </SelectContent>
@@ -298,8 +302,10 @@ export function CreateQuizForm({ courseId, branch }: Props): JSX.Element {
         onClick={() => {
           handleClick();
           setCreateQuizBtn(true);
-        }}>
-        Create Quiz
+        }} disabled={loading}>
+        {loading ? (
+          <Loader className="animate-spin mr-2" />) : (
+          'Create Quiz')}
       </Button>
     </form>
   )

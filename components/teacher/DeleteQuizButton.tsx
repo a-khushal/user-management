@@ -31,6 +31,9 @@ export function DeleteButton({ id, initial, courseId, branch }: { id: number, in
         variant: "destructive"
       })
     }
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   }
   return (
     <>

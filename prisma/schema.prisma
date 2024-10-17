@@ -117,7 +117,7 @@ model Question {
   questionText        String
   defaultMark         String
   numberOfOptions     Int
- options             Option[]
+  options             Option[]
   quizId              Int
   quiz                Quiz         @relation(fields: [quizId], references: [id],onDelete:Cascade)
 }

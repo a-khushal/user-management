@@ -1,6 +1,6 @@
 "use client";
 import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext,useEffect } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconArrowLeft, IconBrandTabler, IconMenu2, IconSettings, IconUserBolt, IconX } from "@tabler/icons-react";
 import Image from "next/image"
@@ -14,7 +14,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useRouter } from "next/navigation";
-import { getQuiz,squiz } from "@/actions/teacher/fetchQuiz";
+import { getQuiz, squiz } from "@/actions/teacher/fetchQuiz";
 import { error } from "console";
 import { Branch, Course } from "@prisma/client";
 import exp from "constants";
@@ -207,9 +207,9 @@ export const SidebarLink = ({
   );
 };
 
-export  function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType }) {
+export function SidebarComponent({ allCourses }: { allCourses: CourseDetailsType }) {
   const courses: { course: CourseType }[] = allCourses.courses;
-  const branch=allCourses.branch?.code;
+  const branch = allCourses.branch?.code;
   const extractedCourses = courses.map((item) => item.course);
   const studentName: string = allCourses.name;
   const usn = allCourses.usn;
@@ -283,7 +283,7 @@ export  function SidebarComponent({ allCourses }: { allCourses: CourseDetailsTyp
             />
           </div>
         </SidebarBody>
-        <MainContent extractedCourses={extractedCourses} name={studentName} usn={usn} branch={branch}/>
+        <MainContent extractedCourses={extractedCourses} name={studentName} usn={usn} branch={branch} />
       </Sidebar>
     </div>
   );
@@ -316,12 +316,12 @@ export const LogoIcon = () => {
   );
 };
 
-const MainContent = ({ extractedCourses, name, usn,branch }: { extractedCourses: CourseType[], name: String, usn: string ,branch?:Branch['code']}) => {
+const MainContent = ({ extractedCourses, name, usn, branch }: { extractedCourses: CourseType[], name: String, usn: string, branch?: Branch['code'] }) => {
   return (
     <div className="w-screen">
       {/* <CoursesCard extractedCourses={extractedCourses} /> */}
       <div className="sm:pt-10 sm:px-5 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 gap-2 w-full h-screen">
-        <div className=""><CoursesCard extractedCourses={extractedCourses} name={name} usn={usn} branch={branch}/></div>
+        <div className=""><CoursesCard extractedCourses={extractedCourses} name={name} usn={usn} branch={branch} /></div>
         <Separator className="my-4" orientation="horizontal" />
       </div>
       {/* <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full"> */}
@@ -330,39 +330,39 @@ const MainContent = ({ extractedCourses, name, usn,branch }: { extractedCourses:
   );
 };
 
-const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses: CourseType[], name: String, usn: string ,branch?:Branch['code']}) => {
+const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses: CourseType[], name: String, usn: string, branch?: Branch['code'] }) => {
   const router = useRouter();
   const [upcomingQuizzes, setQuizzes] = useState<squiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const options:Intl.DateTimeFormatOptions={timeZone:'Asia/Kolkata',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'};
+  const options: Intl.DateTimeFormatOptions = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const handleClick = (id: string, usn: string) => {
     router.push(`dashboard`)
   }
 
-  const isExpired =({quizId,quizDate,quizTime,attempted}:{quizId:number,quizDate:Date,quizTime:Date,attempted:boolean}) =>{
-    const endtime=new Date(quizDate)
+  const isExpired = ({ quizId, quizDate, quizTime, attempted }: { quizId: number, quizDate: Date, quizTime: Date, attempted: boolean }) => {
+    const endtime = new Date(quizDate)
     endtime.setTime(quizTime.getTime())
-    const now=new Date();
-    const expired= now >endtime
-    console.log("Attempted status is"+attempted);
+    const now = new Date();
+    const expired = now > endtime
+    console.log("Attempted status is" + attempted);
     return (
       <div>
-      {expired? (
-        <Button variant="outline" size="sm" className="mt-2" >
-        Quiz has expired contact Instructor
-              </Button>
-      ):(
-        attempted ? (
+        {expired ? (
           <Button variant="outline" size="sm" className="mt-2" >
-          Already attempted
-                </Button>
-        ):(
-<Button variant="outline" size="sm" className="mt-2" onClick={()=>{router.push(`/quiz?quizId=${quizId}`)}}>
-          Take quiz
-                </Button>
-        )
-      )}
+            Quiz has expired contact Instructor
+          </Button>
+        ) : (
+          attempted ? (
+            <Button variant="outline" size="sm" className="mt-2" >
+              Already attempted
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => { router.push(`/quiz?quizId=${quizId}`) }}>
+              Take quiz
+            </Button>
+          )
+        )}
       </div>
     )
   }
@@ -372,7 +372,7 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
       setLoading(true)
       const ids = extractedCourses.map(course => course.courseId)
       console.log("Fetching quizzes for courses:", ids)
-      const quizzes = await getQuiz({courses: ids,branch:branch})
+      const quizzes = await getQuiz({ courses: ids, branch: branch })
       if (Array.isArray(quizzes)) {
         console.log("Quizzes fetched successfully:", quizzes)
         setQuizzes(quizzes)
@@ -386,7 +386,7 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
 
     fetchQuizzes()
   }, [extractedCourses])
-  
+
   console.log("Rendering CoursesCard with quizzes:", upcomingQuizzes)
 
   return <div className="mx-auto">
@@ -426,13 +426,13 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
         </Card>
       </TabsContent>
       <TabsContent value="quizzes">
-  <Card>
-    <CardHeader>
-      <CardTitle>Upcoming Quizzes</CardTitle>
-      <CardDescription>Scheduled quizzes for your courses</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <ScrollArea className="h-[300px] md:h-[400px] overflow-y-auto 
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Quizzes</CardTitle>
+            <CardDescription>Scheduled quizzes for your courses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px] md:h-[400px] overflow-y-auto 
         [&::-webkit-scrollbar]:w-2
         [&::-webkit-scrollbar-track]:rounded-full
         [&::-webkit-scrollbar-track]:bg-gray-100
@@ -440,34 +440,34 @@ const CoursesCard = ({ extractedCourses, name, usn,branch }: { extractedCourses:
         [&::-webkit-scrollbar-thumb]:bg-gray-300
         dark:[&::-webkit-scrollbar-track]:bg-neutral-700
         dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-        {loading ? (
-          <p className="text-center">Loading quizzes...</p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : upcomingQuizzes.length === 0 ? (
-          <p className="text-center">No upcoming quizzes found.</p>
-        ) : (
-          <ul className="space-y-4 mr-2">
-            {upcomingQuizzes.map((quiz) => (
-              <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
-                <h3 className="font-semibold text-lg">{quiz.title}</h3> {/* Apply font styles here */}
-                <p className="text-sm text-gray-600 dark:text-gray-400">Course: {quiz.course.title}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(quiz.date).toLocaleDateString()}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
-                <div>
-                  {isExpired({ quizId:quiz.id,quizDate: quiz.date, quizTime: quiz.endTime ,attempted:quiz.attempted})}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </ScrollArea>
-    </CardContent>
-  </Card>
-</TabsContent>
+              {loading ? (
+                <p className="text-center">Loading quizzes...</p>
+              ) : error ? (
+                <p className="text-center text-red-500">{error}</p>
+              ) : upcomingQuizzes.length === 0 ? (
+                <p className="text-center">No upcoming quizzes found.</p>
+              ) : (
+                <ul className="space-y-4 mr-2">
+                  {upcomingQuizzes.map((quiz) => (
+                    <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
+                      <h3 className="font-semibold text-lg">{quiz.title}</h3> {/* Apply font styles here */}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Course: {quiz.course.title}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(quiz.date).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Time: {new Date(quiz.startTime).toLocaleTimeString()} - {new Date(quiz.endTime).toLocaleTimeString()}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
+                      <div>
+                        {isExpired({ quizId: quiz.id, quizDate: quiz.date, quizTime: quiz.endTime, attempted: quiz.attempted })}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </TabsContent>
 
     </Tabs>
   </div>

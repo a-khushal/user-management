@@ -50,12 +50,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
   const branchCode = params.branchCode;
   const initial = session.user?.initial;
   const students = await fetchStudents({ branchCode, teacherInitial: initial || "" });
-  const upcomingQuizzes = await fetchQuiz({ initial, course, branch: branchCode });
-
-  const handleCreateQuiz = async (newQuizName: string, newQuizDate: string) => {
-    // Server-side action to handle quiz creation
-    console.log("Creating new quiz:", { name: newQuizName, date: newQuizDate });
-  };
+  const quizzes = await fetchQuiz({ initial, course, branch: branchCode });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -113,26 +108,27 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
-                              {Array.isArray(upcomingQuizzes) ? (
+                              {Array.isArray(quizzes) ? (
                                 <TableBody>
-                                  {upcomingQuizzes.map((quiz) => (
-                                    <TableRow key={quiz.id}>
-                                      <TableCell className="font-medium">{quiz.title}</TableCell>
-                                      <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
-                                      <TableCell>{quiz.startTime.toLocaleTimeString()}-{quiz.endTime.toLocaleTimeString()}</TableCell>
-                                      <TableCell>{quiz.duration} minutes</TableCell>
-                                      <TableCell className="text-right">
-                                        <form action={`${branchCode}/edit/${quiz.id}`} method="get">
-
-                                          <Button variant="outline" size="sm">
-                                            <Eye className="mr-2 h-4 w-4" />
-                                          </Button>
-                                        </form>
-                                      </TableCell>
-                                      <TableCell className="text-right">
-                                        <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
-                                      </TableCell>
-                                    </TableRow>
+                                  {quizzes.map((quiz) => (
+                                    quiz.attempted === false ? (
+                                      <TableRow key={quiz.id}>
+                                        <TableCell className="font-medium">{quiz.title}</TableCell>
+                                        <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                        <TableCell>{quiz.startTime.toLocaleTimeString()} - {quiz.endTime.toLocaleTimeString()}</TableCell>
+                                        <TableCell>{quiz.duration} minutes</TableCell>
+                                        <TableCell className="text-right">
+                                          <form action={`${branchCode}/edit/${quiz.id}`} method="get">
+                                            <Button variant="outline" size="sm">
+                                              <Eye className="mr-2 h-4 w-4" />
+                                            </Button>
+                                          </form>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                          <DeleteButton id={quiz.id} initial={initial} courseId={course} branch={branchCode}></DeleteButton>
+                                        </TableCell>
+                                      </TableRow>
+                                    ) : null
                                   ))}
                                 </TableBody>
                               ) : <p>An error occurred</p>}
@@ -156,27 +152,33 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                                   <TableHead className="w-[200px]">Quiz Name</TableHead>
                                   <TableHead>Date</TableHead>
                                   <TableHead>Avg. Score</TableHead>
-                                  <TableHead className="text-right">Action</TableHead>
+                                  <TableHead>Duration</TableHead>
+                                  <TableHead>Action</TableHead>
                                 </TableRow>
                               </TableHeader>
-                              <TableBody>
-                                {previousQuizzes.map((quiz) => (
-                                  <TableRow key={quiz.id}>
-                                    <TableCell className="font-medium">{quiz.name}</TableCell>
-                                    <TableCell>{quiz.date}</TableCell>
-                                    <TableCell>{quiz.avgScore}%</TableCell>
-                                    <TableCell className="text-right">
-                                      <form action="/view-performance">
-                                        <input type="hidden" name="quizId" value={quiz.id} />
-                                        <Button variant="outline" size="sm">
-                                          <Eye className="mr-2 h-4 w-4" />
-                                          View
-                                        </Button>
-                                      </form>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
+                              {Array.isArray(quizzes) ? (
+                                <TableBody>
+                                  {quizzes.map((quiz) => (
+                                    quiz.attempted === true ? (
+                                      <TableRow key={quiz.id}>
+                                        <TableCell className="font-medium">{quiz.title}</TableCell>
+                                        <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
+                                        <TableCell>0.0</TableCell>
+                                        <TableCell>{quiz.duration}</TableCell>
+                                        <TableCell>
+                                          <form action="/view-performance">
+                                            <input type="hidden" name="quizId" value={quiz.id} />
+                                            <Button variant="outline" size="sm">
+                                              <Eye className="mr-2 h-4 w-4" />
+                                              View
+                                            </Button>
+                                          </form>
+                                        </TableCell>
+                                      </TableRow>
+                                    ) : null
+                                  ))}
+                                </TableBody>
+                              ) : <p>An error occurred</p>}
                             </Table>
                           </div>
                         </div>
