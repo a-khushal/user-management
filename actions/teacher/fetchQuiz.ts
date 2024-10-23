@@ -1,11 +1,6 @@
 "use server"
-//import { revalidatePath } from "next/cache";
 import { Teacher } from "@prisma/client"
 import db from "../../db"
-import { Quiz } from "@prisma/client"
-import { getServerSession } from "next-auth"
-import { AuthOptions } from "next-auth"
-import { authOptions } from "@/app/authStore/auth"
 import { Course } from "@prisma/client"
 import { Branch } from "@prisma/client"
 
@@ -17,9 +12,10 @@ export interface quiz {
   endTime: Date,
   duration: number
 }
+
 export interface squiz {
   id: number,
-  attempted: boolean,
+  expired: boolean,
   title: string,
   date: Date,
   startTime: Date,
@@ -43,7 +39,7 @@ export async function fetchQuiz({ initial, course, branch }: { initial: Teacher[
         endTime: true,
         date: true,
         duration: true,
-        attempted: true
+        expired: true
       }
     })
     return quizzes;
@@ -67,7 +63,7 @@ export async function getQuiz({ courses, branch }: { courses: Course['courseId']
       },
       select: {
         course: true,
-        attempted: true,
+        expired: true,
         id: true,
         title: true,
         startTime: true,

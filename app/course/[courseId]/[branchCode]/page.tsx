@@ -111,7 +111,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                               {Array.isArray(quizzes) ? (
                                 <TableBody>
                                   {quizzes.map((quiz) => (
-                                    quiz.attempted === false ? (
+                                    quiz.expired === false ? (
                                       <TableRow key={quiz.id}>
                                         <TableCell className="font-medium">{quiz.title}</TableCell>
                                         <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
@@ -159,7 +159,7 @@ export default async function CourseDetails({ params }: { params: { courseId: st
                               {Array.isArray(quizzes) ? (
                                 <TableBody>
                                   {quizzes.map((quiz) => (
-                                    quiz.attempted === true ? (
+                                    quiz.expired === true ? (
                                       <TableRow key={quiz.id}>
                                         <TableCell className="font-medium">{quiz.title}</TableCell>
                                         <TableCell>{quiz.date.toLocaleDateString()}</TableCell>
