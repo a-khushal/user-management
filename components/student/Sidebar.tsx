@@ -18,12 +18,19 @@ import { getQuiz, squiz } from "@/actions/teacher/fetchQuiz";
 import { error } from "console";
 import { Branch, Course } from "@prisma/client";
 import exp from "constants";
+import { getAttemptDetails } from "@/actions/saveAttempt";
+import { set } from "react-hook-form";
+
 
 interface Links {
   label: string;
   href: string;
   icon: React.JSX.Element | React.ReactNode;
   onClick?: () => void;
+}
+
+interface Attempt{
+  quizId:number
 }
 
 interface SidebarContextProps {
@@ -335,6 +342,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
   const [upcomingQuizzes, setQuizzes] = useState<squiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [attempts,setAttempts]=useState<Attempt[]>([]);
   const options: Intl.DateTimeFormatOptions = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const handleClick = (id: string, usn: string) => {
     router.push(`dashboard`)
@@ -372,8 +380,13 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
       const ids = extractedCourses.map(course => course.courseId)
       
       const quizzes = await getQuiz({ courses: ids, branch: branch })
+      const attempt= await getAttemptDetails({usn:usn})
+      if(Array.isArray(attempt)){
+        setAttempts(attempt)
+      }
+      
       if (Array.isArray(quizzes)) {
-        console.log("Quizzes fetched successfully:", quizzes)
+        //console.log("Quizzes fetched successfully:", quizzes)
         setQuizzes(quizzes)
         setError(null)
       } else {
@@ -386,7 +399,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
     fetchQuizzes()
   }, [extractedCourses])
 
-  console.log("Rendering CoursesCard with quizzes:", upcomingQuizzes)
+  //console.log("Rendering CoursesCard with quizzes:", upcomingQuizzes)
   
 
   return <div className="mx-auto">
@@ -448,8 +461,11 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
                 <p className="text-center">No upcoming quizzes found.</p>
               ) : (
                 <ul className="space-y-4 mr-2">
-                  {upcomingQuizzes.map((quiz) => (
-                    <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
+                  {upcomingQuizzes.map((quiz) => {
+                    const attemptdet=attempts.find(attempt=>attempt.quizId===quiz.id);
+                    const attempted=Boolean(attemptdet)
+                    return(
+                      <li key={quiz.id} className="bg-gray-50 dark:bg-neutral-900 p-4 rounded-md shadow">
                       <h3 className="font-semibold text-lg">{quiz.title}</h3> {/* Apply font styles here */}
                       <p className="text-sm text-gray-600 dark:text-gray-400">Course: {quiz.course.title}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(quiz.date).toLocaleDateString()}</p>
@@ -458,10 +474,11 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
                       <div>
-                        {isExpired({ quizId: quiz.id, quizDate: quiz.date, quizTime: quiz.endTime, attempted: quiz.attempted })}
+                        {isExpired({ quizId: quiz.id, quizDate: quiz.date, quizTime: quiz.endTime, attempted: attempted })}
                       </div>
                     </li>
-                  ))}
+                    )
+                  })}
                 </ul>
               )}
             </ScrollArea>

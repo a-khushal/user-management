@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { LucideLoader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getQuestions, update } from "@/actions/teacher/fetchQuestions"
-import {saveQuiz,getAttemptDetails} from "@/actions/saveAttempt"
+import {saveQuiz} from "@/actions/saveAttempt"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
@@ -58,7 +58,7 @@ export default function StudentQuiz() {
         router.back()
         return
       }
-      const attempts=
+ 
       setIsLoading(true)
       try {
         const response = await getQuestions({ quizId: parseInt(quizId) })
