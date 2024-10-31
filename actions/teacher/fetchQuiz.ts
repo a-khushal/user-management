@@ -10,7 +10,8 @@ export interface quiz {
   date: Date,
   startTime: Date,
   endTime: Date,
-  duration: number
+  duration: number,
+  expired: boolean
 }
 
 export interface squiz {
