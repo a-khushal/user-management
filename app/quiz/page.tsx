@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useEffect } from "react"
@@ -10,6 +9,16 @@ import { LucideLoader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getQuestions, update } from "@/actions/teacher/fetchQuestions"
 import { useSearchParams, useRouter } from "next/navigation"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Option {
   id: number
@@ -25,7 +34,6 @@ interface Question {
 interface QuizData {
   duration: number
   questions: Question[]
-  attempted: boolean
 }
 
 export default function StudentQuiz() {
@@ -35,6 +43,7 @@ export default function StudentQuiz() {
   const [remainingTime, setRemainingTime] = useState(0)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [showConfirmation, setShowConfirmation] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -51,12 +60,10 @@ export default function StudentQuiz() {
       setIsLoading(true)
       try {
         const response = await getQuestions({ quizId: parseInt(quizId) })
-        if (response && 'questions' in response && 'duration' in response && 'attempted' in response) {
+        if (response && 'questions' in response && 'duration' in response) {
           setQuizData(response as QuizData)
-          if (!response.attempted) {
-            await update({ quizId: parseInt(quizId) })
-            setRemainingTime(response.duration * 60)
-          }
+          await update({ quizId: parseInt(quizId) })
+          setRemainingTime(response.duration * 60)
         } else {
           throw new Error("Invalid response format")
         }
@@ -75,12 +82,12 @@ export default function StudentQuiz() {
   }, [quizId, toast, router])
 
   useEffect(() => {
-    if (remainingTime > 0 && quizData && !quizData.attempted) {
+    if (remainingTime > 0 && quizData) {
       const timer = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(timer)
-            handleSubmit()
+            submitQuiz()
             return 0
           }
           return prevTime - 1
@@ -96,8 +103,21 @@ export default function StudentQuiz() {
   }
 
   const handleSubmit = () => {
+    if (remainingTime > 0) {
+      setShowConfirmation(true)
+    } else {
+      submitQuiz()
+    }
+  }
+
+  const submitQuiz = () => {
     setIsSubmitted(true)
     // Actual submission logic would go here
+    toast({
+      title: "Quiz Submitted",
+      description: remainingTime > 0 ? "Your quiz has been submitted." : "Time's up! Your quiz has been automatically submitted.",
+      variant: "default",
+    })
   }
 
   const formatTime = (seconds: number) => {
@@ -118,15 +138,6 @@ export default function StudentQuiz() {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <h2 className="text-2xl font-bold mb-4">No quiz data available</h2>
-        <Button onClick={() => router.back()}>Go Back</Button>
-      </div>
-    )
-  }
-
-  if (quizData.attempted) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h2 className="text-2xl font-bold mb-4">You have already attempted this quiz</h2>
         <Button onClick={() => router.back()}>Go Back</Button>
       </div>
     )
@@ -174,7 +185,7 @@ export default function StudentQuiz() {
             <h2 className="text-xl font-semibold mb-4">{question.questionText}</h2>
             <RadioGroup
               value={selectedOptions[question.id]?.toString()}
-              onValueChange={(value: any) => handleOptionSelect(question.id, parseInt(value))}
+              onValueChange={(value) => handleOptionSelect(question.id, parseInt(value))}
             >
               {question.options.map((option) => (
                 <div key={option.id} className="flex items-center space-x-2 mb-2">
@@ -191,7 +202,7 @@ export default function StudentQuiz() {
           <ChevronLeft className="mr-2 h-4 w-4" /> Previous Page
         </Button>
         {currentPage === totalPages ? (
-          <Button onClick={handleSubmit} disabled={isSubmitted}>
+          <Button onClick={handleSubmit} disabled={isSubmitted || remainingTime === 0}>
             Submit Quiz
           </Button>
         ) : (
@@ -200,6 +211,20 @@ export default function StudentQuiz() {
           </Button>
         )}
       </div>
+      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Submission</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to submit the quiz? You still have time remaining.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={submitQuiz}>Submit</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
