@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import db from "../../db";
+import db from '@/db/index'
 import { Teacher } from "@prisma/client";
 import { Course } from "@prisma/client";
 import { Branch } from "@prisma/client";

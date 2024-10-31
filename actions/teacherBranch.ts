@@ -1,5 +1,5 @@
 'use server'
-import db from '../db/index'
+import db from '@/db/index'
 
 export async function teacherBranch({ initial }: {
   initial: string

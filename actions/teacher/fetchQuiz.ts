@@ -1,6 +1,6 @@
 "use server"
 import { Teacher } from "@prisma/client"
-import db from "../../db"
+import db from '@/db/index'
 import { Course } from "@prisma/client"
 import { Branch } from "@prisma/client"
 

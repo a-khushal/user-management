@@ -1,5 +1,5 @@
 import AllBranches from "@/components/admin/AllBranches";
-import db from "../../../db/index"
+import db from '@/db/index'
 
 export async function fetchAllBranches({ semester }: {
   semester: number
