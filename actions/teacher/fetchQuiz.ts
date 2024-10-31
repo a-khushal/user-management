@@ -10,7 +10,8 @@ export interface quiz {
   date: Date,
   startTime: Date,
   endTime: Date,
-  duration: number
+  duration: number,
+  expired: boolean
 }
 
 export interface squiz {
@@ -39,7 +40,7 @@ export async function fetchQuiz({ initial, course, branch }: { initial: Teacher[
         endTime: true,
         date: true,
         duration: true,
-        expired: true
+        expired: true,
       }
     })
     return quizzes;

@@ -1,14 +1,11 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { redirect } from 'next/navigation'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Edit, Eye, Pencil, Plus } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { Appbar } from '@/components/Appbar';
 import { getServerSession } from 'next-auth';
 import { fetchStudents } from '@/actions/teacher/fetchStudents';

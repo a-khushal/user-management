@@ -27,6 +27,7 @@ model Student {
   role          Role              @default(STUDENT)
   courses       CourseOfStudent[]
   teachers      StudentTeacher[]
+  attempts       Attempt[]
 }
 
 model Course {
@@ -104,6 +105,7 @@ model Quiz {
   endTime         DateTime
   totalQuestions  Int           // number of questions that each student gets to answer
   questions       Question[]
+  attempts        Attempt[]   
   teacherInitial  String
   teacher         Teacher       @relation(fields: [teacherInitial], references: [initial])
   courseId        String
@@ -119,7 +121,8 @@ model Question {
   numberOfOptions     Int
   options             Option[]
   quizId              Int
-  quiz                Quiz         @relation(fields: [quizId], references: [id],onDelete:Cascade)
+  quiz                Quiz         @relation(fields: [quizId], references: [id], onDelete:Cascade)
+  responses           QuestionResponse[]
 }
 
 model Option {
@@ -127,7 +130,36 @@ model Option {
   optionText       String 
   optionMark       String
   questionId       Int
-  question         Question       @relation(fields: [questionId], references: [id],onDelete:Cascade)
+  question         Question       @relation(fields: [questionId], references: [id], onDelete:Cascade)
+  responses        QuestionResponse[]
+}
+
+model Attempt {
+  id                Int             @id @default(autoincrement())
+  usn               String
+  student           Student         @relation(fields: [usn], references: [usn])
+  quizId            Int
+  quiz              Quiz            @relation(fields: [quizId], references: [id])
+  response          Response?
+  marksObtained     Int 
+}
+
+model Response {
+  id                  Int                 @id @default(autoincrement())
+  attemptId           Int
+  attempt             Attempt             @relation(fields: [attemptId], references: [id])
+  questionResponses   QuestionResponse[]
+}
+
+model QuestionResponse {
+  id                  Int             @id @default(autoincrement())
+  responseId          Int
+  response            Response        @relation(fields: [responseId], references: [id])
+  questionId          Int
+  question            Question        @relation(fields: [questionId], references: [id])
+  selectedOptionId    Int?
+  selectedOption      Option?         @relation(fields: [selectedOptionId], references: [id])
+  marksAwarded        Int?
 }
 
 enum Role {
