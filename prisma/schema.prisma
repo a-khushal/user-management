@@ -27,7 +27,7 @@ model Student {
   role          Role              @default(STUDENT)
   courses       CourseOfStudent[]
   teachers      StudentTeacher[]
-  attempts?     Attempt[]
+  attempts     Attempt[]
 }
 
 model Course {
@@ -35,6 +35,8 @@ model Course {
   title         String      @unique
   description   String?
   courseId      String      @unique
+  branchCode    String
+  branch        Branch      @relation(fields: [branchCode], references: [code])
   students      CourseOfStudent[]
   teachers      CourseOfTeacher[]
   quizzes       Quiz[]
@@ -69,6 +71,7 @@ model Branch {
   students  Student[]
   teachers  BranchTeacher[]
   quizzes   Quiz[]
+  courses   Course[]
 }
 
 model BranchTeacher {
