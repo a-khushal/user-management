@@ -146,7 +146,7 @@ model Attempt {
 
 model Response {
   id                  Int                 @id @default(autoincrement())
-  attemptId           Int
+  attemptId           Int                 @unique
   attempt             Attempt             @relation(fields: [attemptId], references: [id])
   questionResponses   QuestionResponse[]
 }

@@ -28,16 +28,6 @@ const getServerSideProps: GetServerSideProps = async (
   };
 };
 
-const previousQuizzes = [
-  { id: 1, name: "Math Quiz", date: "2023-05-15", participants: 25, avgScore: 85 },
-  { id: 2, name: "Science Quiz", date: "2023-05-20", participants: 30, avgScore: 78 },
-  { id: 5, name: "Geography Quiz", date: "2023-05-25", participants: 22, avgScore: 82 },
-  { id: 7, name: "Literature Quiz", date: "2023-05-30", participants: 28, avgScore: 76 },
-  { id: 8, name: "Music Quiz", date: "2023-06-01", participants: 20, avgScore: 88 },
-  { id: 11, name: "Art History Quiz", date: "2023-06-03", participants: 18, avgScore: 79 },
-  { id: 12, name: "Computer Science Quiz", date: "2023-06-05", participants: 35, avgScore: 92 },
-]
-
 export default async function CourseDetails({ params }: { params: { courseId: string, branchCode: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role == 'STUDENT' || session.user.role == 'ADMIN') {

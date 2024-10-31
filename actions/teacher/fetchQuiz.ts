@@ -40,6 +40,7 @@ export async function fetchQuiz({ initial, course, branch }: { initial: Teacher[
         endTime: true,
         date: true,
         duration: true,
+        expired: true,
       }
     })
     return quizzes;
