@@ -15,6 +15,7 @@ interface Question {
   defaultMark: string
   numberOfOptions: number
   options: Option[]
+  correctOptionID:number
 }
 
 export async function saveQuestions(quizId: number, questions: Question[]) {
@@ -36,12 +37,12 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
           const existingQuestion = question.id 
             ? existingQuestions.find(q => q.id === question.id)
             : null;
-
           if (existingQuestion) {
             if (
               existingQuestion.questionText !== question.questionText ||
               existingQuestion.defaultMark !== question.defaultMark ||
-              existingQuestion.numberOfOptions !== question.numberOfOptions
+              existingQuestion.numberOfOptions !== question.numberOfOptions||
+              existingQuestion.correctOptionID!==question.correctOptionID
             ) {
               updatedQuestion = await tx.question.update({
                 where: { id: question.id },
@@ -49,6 +50,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                   questionText: question.questionText,
                   defaultMark: question.defaultMark,
                   numberOfOptions: question.numberOfOptions,
+                  correctOptionID:question.correctOptionID
                 },
               })
               changesMade = true;
@@ -62,6 +64,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                 questionText: question.questionText,
                 defaultMark: question.defaultMark,
                 numberOfOptions: question.numberOfOptions,
+                correctOptionID:question.correctOptionID
               },
             })
             changesMade = true;

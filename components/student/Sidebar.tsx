@@ -339,13 +339,12 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
   const handleClick = (id: string, usn: string) => {
     router.push(`dashboard`)
   }
-
   const isExpired = ({ quizId, quizDate, quizTime, attempted }: { quizId: number, quizDate: Date, quizTime: Date, attempted: boolean }) => {
     const endtime = new Date(quizDate)
     endtime.setTime(quizTime.getTime())
     const now = new Date();
     const expired = now > endtime
-    console.log("Attempted status is" + attempted);
+    //console.log(usn)
     return (
       <div>
         {expired ? (
@@ -358,7 +357,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
               Already attempted
             </Button>
           ) : (
-            <Button variant="outline" size="sm" className="mt-2" onClick={() => { router.push(`/quiz?quizId=${quizId}`) }}>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => { router.push(`/quiz?quizId=${quizId}&usn=${usn}`) }}>
               Take quiz
             </Button>
           )
@@ -371,7 +370,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
     const fetchQuizzes = async () => {
       setLoading(true)
       const ids = extractedCourses.map(course => course.courseId)
-      console.log("Fetching quizzes for courses:", ids)
+      
       const quizzes = await getQuiz({ courses: ids, branch: branch })
       if (Array.isArray(quizzes)) {
         console.log("Quizzes fetched successfully:", quizzes)
@@ -388,6 +387,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
   }, [extractedCourses])
 
   console.log("Rendering CoursesCard with quizzes:", upcomingQuizzes)
+  
 
   return <div className="mx-auto">
     <Tabs defaultValue="courses" className="w-full">

@@ -16,6 +16,7 @@ export default async function({ quizId }: { quizId: number }) {
             questionText: true,
             defaultMark: true,
             numberOfOptions: true,
+            correctOptionID:true,
             options: {
               select: {
                 id: true,
