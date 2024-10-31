@@ -61,9 +61,6 @@ export default function AllBranches({ branches, semester }: {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold">College Branches</h2>
-            {/* <Button> */}
-            {/*   <PlusCircle className="mr-2 h-4 w-4" /> Add New Branch */}
-            {/* </Button> */}
             <AddBranchForm />
           </div>
           {branches?.length === 0 ? (
