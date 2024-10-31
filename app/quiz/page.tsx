@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { LucideLoader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getQuestions, update } from "@/actions/teacher/fetchQuestions"
+import {saveQuiz,getAttemptDetails} from "@/actions/saveAttempt"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
@@ -48,6 +49,7 @@ export default function StudentQuiz() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const quizId = searchParams.get('quizId')
+  const usn = searchParams.get('usn')
   const questionsPerPage = 5
 
   useEffect(() => {
@@ -56,14 +58,31 @@ export default function StudentQuiz() {
         router.back()
         return
       }
-
+      const attempts=
       setIsLoading(true)
       try {
         const response = await getQuestions({ quizId: parseInt(quizId) })
         if (response && 'questions' in response && 'duration' in response) {
           setQuizData(response as QuizData)
+          console.log("Usn is ", usn)
           await update({ quizId: parseInt(quizId) })
-          setRemainingTime(response.duration * 60)
+          
+          const savedTimeString = localStorage.getItem(`quiz_${quizId}_remainingTime`)
+          const savedTime = savedTimeString ? parseInt(savedTimeString) : null
+          const currentTime = Math.floor(Date.now() / 1000)
+          const savedTimestamp = localStorage.getItem(`quiz_${quizId}_timestamp`)
+          const elapsedTime = savedTimestamp ? currentTime - parseInt(savedTimestamp) : 0
+
+          let timeToSet
+          if (savedTime && elapsedTime < savedTime) {
+            timeToSet = savedTime - elapsedTime
+          } else {
+            timeToSet = response.duration * 60
+          }
+
+          setRemainingTime(timeToSet)
+          localStorage.setItem(`quiz_${quizId}_remainingTime`, timeToSet.toString())
+          localStorage.setItem(`quiz_${quizId}_timestamp`, currentTime.toString())
         } else {
           throw new Error("Invalid response format")
         }
@@ -79,24 +98,27 @@ export default function StudentQuiz() {
       }
     }
     loadQuestions()
-  }, [quizId, toast, router])
+  }, [quizId, toast, router, usn])
 
   useEffect(() => {
     if (remainingTime > 0 && quizData) {
       const timer = setInterval(() => {
         setRemainingTime((prevTime) => {
-          if (prevTime <= 1) {
+          const newTime = prevTime - 1
+          if (newTime <= 0) {
             clearInterval(timer)
             submitQuiz()
             return 0
           }
-          return prevTime - 1
+          localStorage.setItem(`quiz_${quizId}_remainingTime`, newTime.toString())
+          localStorage.setItem(`quiz_${quizId}_timestamp`, Math.floor(Date.now() / 1000).toString())
+          return newTime
         })
       }, 1000)
 
       return () => clearInterval(timer)
     }
-  }, [remainingTime, quizData])
+  }, [remainingTime, quizData, quizId])
 
   const handleOptionSelect = (questionId: number, optionId: number) => {
     setSelectedOptions((prev) => ({ ...prev, [questionId]: optionId }))
@@ -110,14 +132,30 @@ export default function StudentQuiz() {
     }
   }
 
-  const submitQuiz = () => {
+  const submitQuiz = async () => {
     setIsSubmitted(true)
-    // Actual submission logic would go here
-    toast({
-      title: "Quiz Submitted",
-      description: remainingTime > 0 ? "Your quiz has been submitted." : "Time's up! Your quiz has been automatically submitted.",
-      variant: "default",
-    })
+    const quizid = parseInt(quizId!)
+    try {
+      const result = await saveQuiz({ quizID: quizid, usn: usn!, selectedOptions })
+      if (result.success) {
+        toast({
+          title: "Quiz Submitted",
+          description: `Your quiz has been submitted successfully. You scored ${result.marksObtained} out of ${result.totalMarks}.`,
+          variant: "default",
+        })
+        router.replace("/")
+      } else {
+        throw new Error(result.error || "Failed to submit quiz")
+      }
+    } catch (error) {
+      console.error("Error submitting quiz:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred while submitting the quiz.",
+        variant: "destructive",
+      })
+      setIsSubmitted(false) // Allow the user to try submitting again
+    }
   }
 
   const formatTime = (seconds: number) => {

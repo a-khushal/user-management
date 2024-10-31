@@ -120,6 +120,7 @@ model Question {
   defaultMark         String
   numberOfOptions     Int
   options             Option[]
+  correctOptionID     Int          
   quizId              Int
   quiz                Quiz         @relation(fields: [quizId], references: [id], onDelete:Cascade)
   responses           QuestionResponse[]
@@ -142,19 +143,20 @@ model Attempt {
   quiz              Quiz            @relation(fields: [quizId], references: [id])
   response          Response?
   marksObtained     Int 
+  totalMarks        Int 
 }
 
 model Response {
   id                  Int                 @id @default(autoincrement())
   attemptId           Int                 @unique
-  attempt             Attempt             @relation(fields: [attemptId], references: [id])
+  attempt             Attempt             @relation(fields: [attemptId], references: [id],onDelete:Cascade)
   questionResponses   QuestionResponse[]
 }
 
 model QuestionResponse {
   id                  Int             @id @default(autoincrement())
   responseId          Int
-  response            Response        @relation(fields: [responseId], references: [id])
+  response            Response        @relation(fields: [responseId], references: [id],onDelete:Cascade)
   questionId          Int
   question            Question        @relation(fields: [questionId], references: [id])
   selectedOptionId    Int?
