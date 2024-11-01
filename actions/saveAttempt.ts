@@ -1,7 +1,7 @@
 'use server'
 
 import { parse } from "path"
-import db from "../db"
+import db from '@/db/index'
 import { Attempt,Response,QuestionResponse,Question } from "@prisma/client"
 
 

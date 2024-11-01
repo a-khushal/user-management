@@ -1,11 +1,13 @@
 "use server"
 
-import db from '../../db/index'
+import db from '@/db/index'
 
 interface paramsType {
   courseCode: string;
   title: string;
   description?: string | undefined;
+  semester: number;
+  branchCode: string;
 }
 
 export async function createCourse(params: paramsType) {
@@ -14,7 +16,9 @@ export async function createCourse(params: paramsType) {
       data: {
         title: params.title,
         courseId: params.courseCode,
-        description: params.description
+        description: params.description,
+        semester: params.semester,
+        branchCode: params.branchCode
       }
     })
 

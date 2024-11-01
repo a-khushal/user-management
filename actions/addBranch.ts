@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from 'next/cache'
-import db from '../db/index'
+import db from '@/db/index'
 
 export async function addBranch({ name, code }: {
   name: string,

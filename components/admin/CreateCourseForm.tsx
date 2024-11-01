@@ -37,7 +37,10 @@ const formSchema = z.object({
   description: z.string().optional(),
 })
 
-export default function Component() {
+export default function CreateCourseForm({ semester, branchCode }: {
+  semester: string,
+  branchCode: string,
+}) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false)
 
@@ -52,8 +55,9 @@ export default function Component() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
+    const payload = {...values, semester: parseInt(semester), branchCode}
     setLoading(true)
-    const res = await createCourse(values)
+    const res = await createCourse(payload)
     if (res.type === 'success') {
       toast({
         title: res.msg
@@ -66,6 +70,7 @@ export default function Component() {
     }
     form.reset()
     setLoading(false)
+    window.location.reload()
   }
 
   return (

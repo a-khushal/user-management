@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Course" ALTER COLUMN "branchCode" DROP DEFAULT,
+ALTER COLUMN "semester" DROP DEFAULT;

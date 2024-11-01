@@ -1,5 +1,5 @@
 import { AdminAppbar } from "./AdminAppbar";
-import db from "../../db/index"
+import db from '@/db/index'
 import AllSemesters from "./AllSemesters";
 
 export async function fetchAllBranches() {

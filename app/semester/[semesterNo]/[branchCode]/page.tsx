@@ -26,6 +26,7 @@
 // }
 
 import CreateCourseForm from "@/components/admin/CreateCourseForm";
+import CourseScroll from "@/components/admin/CourseScroll";
 
 // export default function AcademicManagement() {
 //   const params = useParams()
@@ -248,11 +249,16 @@ import CreateCourseForm from "@/components/admin/CreateCourseForm";
 // }
 //
 
-export default function Manager() {
+export default function Manager({ params }: {
+  params: any
+}) {
   return (
     <div>
       <h1 className="text-2xl font-bold m-5">Course Management</h1>
-      <CreateCourseForm />
+      <div className="flex space-x-4">
+        <CreateCourseForm semester={params.semesterNo} branchCode={params.branchCode}/>
+        <CourseScroll semester={params.semesterNo} branchCode={params.branchCode}/>
+      </div>
     </div>
   )
 }

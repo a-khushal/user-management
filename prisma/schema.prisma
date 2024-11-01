@@ -35,6 +35,9 @@ model Course {
   title         String      @unique
   description   String?
   courseId      String      @unique
+  semester      Int         
+  branchCode    String      
+  branch        Branch      @relation(fields: [branchCode], references: [code])
   students      CourseOfStudent[]
   teachers      CourseOfTeacher[]
   quizzes       Quiz[]
@@ -65,10 +68,11 @@ model Branch {
   id        Int              @id @default(autoincrement())
   name      String
   code      String           @unique
-  semester  Int              @default(0)
+  semester  Int              
   students  Student[]
   teachers  BranchTeacher[]
   quizzes   Quiz[]
+  courses   Course[]
 }
 
 model BranchTeacher {

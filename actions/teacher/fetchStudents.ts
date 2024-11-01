@@ -1,5 +1,5 @@
 "use server"
-import db from "../../db/index"
+import db from '@/db/index'
 
 export const fetchStudents = async ({ branchCode, teacherInitial }: {
   branchCode: string,
