@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import SubjectsDashboard from "@/components/student/subjects-dashboard"
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { getStudentAttemptDetails } from "@/actions/saveAttempt"
-import { useEffect,useState } from "react"
-import { useParams } from "next/navigation"
-
+import SubjectsDashboard from "@/components/student/subjects-dashboard"
+import { ThemeProvider } from "next-themes"
 
 interface TestDetail {
   id: number
-  name:string
+  name: string
   marksObtained: number
   totalMarks: number
   courseId: string
@@ -16,22 +16,33 @@ interface TestDetail {
 }
 
 export default function Page() {
-  const {usn}=useParams();
-  const [subjects,setSubjects]=useState<TestDetail[]>([]);
-  console.log(typeof(usn))
-  useEffect(()=>{
-    const getData= async ()=>{
-      const data=await getStudentAttemptDetails({usn:usn})
-      console.log(data)
-      if(data){
-        setSubjects(data as TestDetail[]);
+  const searchParams = useSearchParams()
+  const usn = searchParams.get('usn')
+  const [subjects, setSubjects] = useState<TestDetail[]>([])
+
+  useEffect(() => {
+    const getData = async () => {
+      if (!usn) return
+      const data = await getStudentAttemptDetails({ usn })
+      if (data) {
+        setSubjects(data as TestDetail[])
       }
     }
     getData()
-  },[])
+  }, [usn])
+
+  if (!usn) return null
+
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <SubjectsDashboard testDetails={subjects} />
-    </div>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <div className="min-h-screen bg-background">
+        <SubjectsDashboard testDetails={subjects} usn={usn} />
+      </div>
+    </ThemeProvider>
   )
 }

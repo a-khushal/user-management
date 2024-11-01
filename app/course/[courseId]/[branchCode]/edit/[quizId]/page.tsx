@@ -1,274 +1,272 @@
-'use client'
+"use client"
 
-import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import React, { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { PlusCircle, Trash2, LucideLoader2 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import fetchQuestions from "@/actions/teacher/fetchQuestions"
-import { saveQuestions } from "@/actions/teacher/saveQuestions"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ExternalLink, Moon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
 
-interface Option {
-  id?: number
-  optionText: string
-  optionMark: string
+interface TestDetail {
+  id: number
+  name: string
+  marksObtained: number
+  totalMarks: number
+  courseId: string
+  course: string
 }
 
-interface Question {
-  id?: number
-  questionText: string
-  defaultMark: string
-  numberOfOptions: number
-  correctOptionID: number
-  options: Option[]
+interface SubjectData {
+  name: string
+  courseId: string
+  tests: TestDetail[]
+  averageScore: number
 }
 
-export default function EditQuiz() {
-  const { quizId } = useParams()
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+interface TestDetailsDashboardProps {
+  testDetails: TestDetail[]
+  usn: string
+}
+
+export default function TestDetailsDashboard({ testDetails, usn }: TestDetailsDashboardProps) {
+  const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [calculatedData, setCalculatedData] = useState<{
+    subjectData: SubjectData[],
+    overallAverage: number,
+    totalTests: number,
+    totalSubjects: number
+  } | null>(null)
 
   useEffect(() => {
-    const loadQuestions = async () => {
-      setIsLoading(true)
+    if (!testDetails || testDetails.length === 0) {
+      setCalculatedData({
+        subjectData: [],
+        overallAverage: 0,
+        totalTests: 0,
+        totalSubjects: 0
+      })
+      setIsInitialized(true)
+      return
+    }
+
+    const calculateData = () => {
       try {
-        const fetchedQuestions = await fetchQuestions({ quizId: parseInt(quizId as string) })
-        if (!fetchedQuestions) {
-          setQuestions([])
-        } else {
-          setQuestions(fetchedQuestions)
-        }
-      } catch (error) {
-        console.error("Error fetching questions:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load questions. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadQuestions()
-  }, [quizId, toast])
-
-  const handleQuestionChange = (index: number, field: keyof Question, value: string | number) => {
-    setQuestions(questions.map((q, i) =>
-      i === index ? { ...q, [field]: value } : q
-    ))
-  }
-
-  const handleOptionChange = (questionIndex: number, optionIndex: number, field: keyof Option, value: string) => {
-    setQuestions(questions.map((q, qIndex) =>
-      qIndex === questionIndex ? {
-        ...q,
-        options: q.options.map((o, oIndex) =>
-          oIndex === optionIndex ? { ...o, [field]: value } : o
-        )
-      } : q
-    ))
-  }
-
-  const addQuestion = () => {
-    const newQuestion: Question = {
-      questionText: '',
-      defaultMark: '1',
-      numberOfOptions: 0,
-      correctOptionID: 0,
-      options: []
-    }
-    setQuestions([...questions, newQuestion])
-  }
-
-  const addOption = (questionIndex: number) => {
-    setQuestions(questions.map((q, index) =>
-      index === questionIndex ? {
-        ...q,
-        options: [
-          ...q.options,
-          {
-            optionText: '',
-            optionMark: '0'
+        const subjectMap = new Map<string, TestDetail[]>()
+        testDetails.forEach(test => {
+          if (!subjectMap.has(test.course)) {
+            subjectMap.set(test.course, [])
           }
-        ],
-        numberOfOptions: q.numberOfOptions + 1
-      } : q
-    ))
-  }
+          subjectMap.get(test.course)!.push(test)
+        })
 
-  const removeQuestion = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index))
-  }
+        const calculatedSubjectData = Array.from(subjectMap.entries()).map(([name, tests]) => {
+          const subjectScores = tests.map(test => (test.marksObtained / test.totalMarks) * 100)
+          const averageScore = subjectScores.reduce((sum, score) => sum + score, 0) / subjectScores.length
+          return {
+            name,
+            courseId: tests[0].courseId,
+            tests,
+            averageScore
+          }
+        })
 
-  const removeOption = (questionIndex: number, optionIndex: number) => {
-    setQuestions(questions.map((q, qIndex) =>
-      qIndex === questionIndex ? {
-        ...q,
-        options: q.options.filter((_, oIndex) => oIndex !== optionIndex),
-        numberOfOptions: q.numberOfOptions - 1,
-        correctOptionID: q.correctOptionID === optionIndex + 1 ? 0 : q.correctOptionID
-      } : q
-    ))
-  }
+        const validSubjects = calculatedSubjectData.filter(subject => 
+          !isNaN(subject.averageScore) && isFinite(subject.averageScore)
+        )
 
-  const validateQuestions = (): string | null => {
-    for (let i = 0; i < questions.length; i++) {
-      const question = questions[i];
-      const questionNumber = i + 1;
+        const calculatedOverallAverage = validSubjects.length > 0
+          ? validSubjects.reduce((sum, subject) => sum + subject.averageScore, 0) / validSubjects.length
+          : 0
 
-      if (!question.questionText.trim()) {
-        return `Question ${questionNumber} is missing text.`;
+        setCalculatedData({
+          subjectData: calculatedSubjectData,
+          overallAverage: calculatedOverallAverage,
+          totalTests: testDetails.length,
+          totalSubjects: calculatedSubjectData.length
+        })
+      } catch (error) {
+        console.error('Error calculating data:', error)
+        setCalculatedData({
+          subjectData: [],
+          overallAverage: 0,
+          totalTests: 0,
+          totalSubjects: 0
+        })
       }
-      if (isNaN(parseFloat(question.defaultMark)) || parseFloat(question.defaultMark) < 0) {
-        return `Question ${questionNumber} has an invalid default mark.`;
-      }
-      if (question.options.length < 2) {
-        return `Question ${questionNumber} must have at least 2 options.`;
-      }
-      if (question.correctOptionID === 0) {
-        return `Question ${questionNumber} must have a correct option selected.`;
-      }
-      for (let j = 0; j < question.options.length; j++) {
-        const option = question.options[j];
-        const optionNumber = j + 1;
-
-        if (!option.optionText.trim()) {
-          return `Option ${optionNumber} in question ${questionNumber} is missing text.`;
-        }
-        if (isNaN(parseFloat(option.optionMark)) || parseFloat(option.optionMark) < 0) {
-          return `Option ${optionNumber} in question ${questionNumber} has an invalid mark.`;
-        }
-      }
-    }
-    return null;
-  };
-
-  const handleSubmit = async () => {
-    const error = validateQuestions()
-    if (error) {
-      toast({
-        title: "Validation Error",
-        description: error,
-        variant: "destructive",
-      })
-      return;
+      setIsInitialized(true)
     }
 
-    setIsLoading(true)
-    try {
-      await saveQuestions(parseInt(quizId as string), questions)
-      toast({
-        title: "Success",
-        description: "Quiz questions have been saved successfully.",
-      })
-    } catch (error) {
-      console.error("Error saving questions:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save questions. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    calculateData()
+  }, [testDetails])
+
+  const getScoreColor = (score: number) => {
+    if (!isFinite(score) || isNaN(score)) return "text-muted-foreground"
+    if (score >= 70) return "text-green-600 dark:text-green-400"
+    if (score >= 50) return "text-yellow-600 dark:text-yellow-400"
+    return "text-red-600 dark:text-red-400"
   }
 
-  if (isLoading) {
+  const getScoreMessage = (score: number) => {
+    if (!isFinite(score) || isNaN(score)) return "No data available"
+    if (score >= 70) return "Good performance!"
+    if (score >= 50) return "Average performance. Room for improvement."
+    return "Needs improvement. Consider additional study."
+  }
+
+  const handleViewDetails = (testId: number) => {
+    router.push(`/response?testId=${testId}&&usn=${usn}`)
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light")
+  }
+
+  if (!isInitialized || !calculatedData) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LucideLoader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="container mx-auto p-4 space-y-6">
+        <h1 className="text-3xl font-bold text-center mb-6 text-foreground">Test Details Dashboard</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Overall Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
       </div>
     )
   }
 
+  if (!calculatedData.subjectData.length) {
+    return (
+      <div className="container mx-auto p-4 space-y-6">
+        <h1 className="text-3xl font-bold text-center mb-6 text-foreground">Test Details Dashboard</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>No test details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    )
+  }
+  
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-10 flex justify-center w-full mt-4">Edit Quiz</h1>
-      {questions.length > 0 ? (
-        questions.map((question, index) => (
-          <div key={index} className="mb-8 p-4 border rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-semibold">Question {index + 1}</h2>
-              <Button variant="destructive" size="icon" onClick={() => removeQuestion(index)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+    <div className="min-h-screen">
+      <div className="container mx-auto p-4 space-y-6">
+        <h1 className="text-3xl font-bold">Test Details Dashboard</h1>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Overall Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total Subjects:</span>
+                <span className="font-medium">{calculatedData.totalSubjects}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total Tests:</span>
+                <span className="font-medium">{calculatedData.totalTests}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Overall Average Score:</span>
+                <span className={`font-medium ${getScoreColor(calculatedData.overallAverage)}`}>
+                  {calculatedData.overallAverage.toFixed(2)}%
+                </span>
+              </div>
+              <div className={`text-center font-medium ${getScoreColor(calculatedData.overallAverage)}`}>
+                {getScoreMessage(calculatedData.overallAverage)}
+              </div>
             </div>
-            <Textarea
-              value={question.questionText}
-              onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
-              placeholder="Enter question text"
-              className="mb-2"
-            />
-            <div className="space-y-2 mt-4">
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="flex items-center space-x-2">
-                  <Label className="w-8">{`op ${optionIndex + 1}`}</Label>
-                  <Input
-                    value={option.optionText}
-                    onChange={(e) => handleOptionChange(index, optionIndex, 'optionText', e.target.value)}
-                    placeholder={`Option ${optionIndex + 1}`}
-                    className="flex-grow"
-                  />
-                  <Input
-                    type="number"
-                    value={option.optionMark}
-                    onChange={(e) => handleOptionChange(index, optionIndex, 'optionMark', e.target.value)}
-                    placeholder="Mark"
-                    className="w-20"
-                  />
-                  <Button variant="destructive" size="icon" onClick={() => removeOption(index, optionIndex)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+          </CardContent>
+        </Card>
+
+        <Accordion type="single" collapsible className="w-full">
+          {calculatedData.subjectData.map((subject, index) => (
+            <AccordionItem value={`subject-${index}`} key={index}>
+              <AccordionTrigger>
+                <div className="flex justify-between w-full pr-4">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{subject.name}</span>
+                    <span className="text-sm text-muted-foreground">Course ID: {subject.courseId}</span>
+                  </div>
+                  <span className={getScoreColor(subject.averageScore)}>
+                    Avg: {subject.averageScore.toFixed(2)}%
+                  </span>
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center space-x-2 mt-4">
-              <Label>correct op</Label>
-              <Select
-                value={question.correctOptionID.toString()}
-                onValueChange={(value) => handleQuestionChange(index, 'correctOptionID', parseInt(value))}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select correct option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {question.options.map((_, optionIndex) => (
-                    <SelectItem key={optionIndex} value={(optionIndex + 1).toString()}>
-                      Option {optionIndex + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="mt-4 flex justify-between items-center">
-              <Button onClick={() => addOption(index)}>
-                <PlusCircle className="h-4 w-4 mr-2" /> Add Option
-              </Button>
-              <Input
-                type="number"
-                value={question.defaultMark}
-                onChange={(e) => handleQuestionChange(index, 'defaultMark', e.target.value)}
-                placeholder="Default mark"
-                className="w-32"
-              />
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="flex justify-center items-center h-64">No Quiz Questions found. Try creating a new quiz</div>
-      )}
-      <div className="flex justify-between items-center mt-4">
-        <Button onClick={addQuestion}>
-          <PlusCircle className="h-4 w-4 mr-2" /> Add Question
-        </Button>
-        <Button onClick={handleSubmit} disabled={isLoading}>
-          {isLoading ? 'Saving...' : 'Submit Changes'}
-        </Button>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className={`text-center font-medium mb-4 ${getScoreColor(subject.averageScore)}`}>
+                      {getScoreMessage(subject.averageScore)}
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Test Name</TableHead>
+                          <TableHead className="text-right">Maximum Marks</TableHead>
+                          <TableHead className="text-right">Obtained Marks</TableHead>
+                          <TableHead className="text-right">Percentage</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {subject.tests.map((test) => (
+                          <TableRow key={test.id}>
+                            <TableCell>{test.name}</TableCell>
+                            <TableCell className="text-right">{test.totalMarks}</TableCell>
+                            <TableCell className="text-right">{test.marksObtained}</TableCell>
+                            <TableCell className="text-right">
+                              {((test.marksObtained / test.totalMarks) * 100).toFixed(2)}%
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewDetails(test.id)}
+                              >
+                                View Details
+                                <ExternalLink className="ml-2 h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </div>
   )
