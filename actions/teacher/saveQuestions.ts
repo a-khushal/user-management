@@ -15,13 +15,13 @@ interface Question {
   defaultMark: string
   numberOfOptions: number
   options: Option[]
-  correctOptionID:number
+  correctOptionID: number
 }
 
 export async function saveQuestions(quizId: number, questions: Question[]) {
   const MAX_RETRIES = 3
   let retries = 0
-
+  console.log(questions)
   while (retries < MAX_RETRIES) {
     try {
       let changesMade = false;
@@ -37,12 +37,13 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
           const existingQuestion = question.id 
             ? existingQuestions.find(q => q.id === question.id)
             : null;
+
           if (existingQuestion) {
             if (
               existingQuestion.questionText !== question.questionText ||
               existingQuestion.defaultMark !== question.defaultMark ||
-              existingQuestion.numberOfOptions !== question.numberOfOptions||
-              existingQuestion.correctOptionID!==question.correctOptionID
+              existingQuestion.numberOfOptions !== question.numberOfOptions ||
+              existingQuestion.correctOptionID !== question.correctOptionID
             ) {
               updatedQuestion = await tx.question.update({
                 where: { id: question.id },
@@ -50,7 +51,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                   questionText: question.questionText,
                   defaultMark: question.defaultMark,
                   numberOfOptions: question.numberOfOptions,
-                  correctOptionID:question.correctOptionID
+                  correctOptionID: question.correctOptionID
                 },
               })
               changesMade = true;
@@ -64,7 +65,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                 questionText: question.questionText,
                 defaultMark: question.defaultMark,
                 numberOfOptions: question.numberOfOptions,
-                correctOptionID:question.correctOptionID
+                correctOptionID: question.correctOptionID
               },
             })
             changesMade = true;
@@ -86,7 +87,10 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
             changesMade = true;
           }
 
+          const updatedOptions = [];
+
           for (const option of question.options) {
+            let updatedOption;
             if (option.id) {
               const existingOption = existingOptions.find(eo => eo.id === option.id);
 
@@ -95,7 +99,7 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                   existingOption.optionText !== option.optionText ||
                   existingOption.optionMark !== option.optionMark
                 ) {
-                  await tx.option.update({
+                  updatedOption = await tx.option.update({
                     where: { id: option.id },
                     data: {
                       optionText: option.optionText,
@@ -103,9 +107,11 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                     },
                   })
                   changesMade = true;
+                } else {
+                  updatedOption = existingOption;
                 }
               } else {
-                await tx.option.create({
+                updatedOption = await tx.option.create({
                   data: {
                     questionId: questionId,
                     optionText: option.optionText,
@@ -115,13 +121,26 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
                 changesMade = true;
               }
             } else {
-              await tx.option.create({
+              updatedOption = await tx.option.create({
                 data: {
                   questionId: questionId,
                   optionText: option.optionText,
                   optionMark: option.optionMark,
                 },
               })
+              changesMade = true;
+            }
+            updatedOptions.push(updatedOption);
+          }
+
+          // Update the correctOptionID if it's referring to a new option
+          if (!existingQuestion || !question.id) {
+            const correctOption = updatedOptions[question.correctOptionID - 1];
+            if (correctOption && correctOption.id !== question.correctOptionID) {
+              await tx.question.update({
+                where: { id: questionId },
+                data: { correctOptionID: correctOption.id },
+              });
               changesMade = true;
             }
           }
@@ -153,7 +172,6 @@ export async function saveQuestions(quizId: number, questions: Question[]) {
     } catch (error) {
       retries++
       if (error.code === 'P2028' && retries < MAX_RETRIES) {
-        
         await new Promise(resolve => setTimeout(resolve, 1000 * retries))
       } else {
         console.error('Error updating quiz:', error)

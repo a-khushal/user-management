@@ -13,13 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 
 interface Option {
-  id: number
+  id?: number
   optionText: string
   optionMark: string
 }
 
 interface Question {
-  id: number
+  id?: number
   questionText: string
   defaultMark: string
   numberOfOptions: number
@@ -57,27 +57,25 @@ export default function EditQuiz() {
     loadQuestions()
   }, [quizId, toast])
 
-  const handleQuestionChange = (questionId: number, field: keyof Question, value: string | number) => {
-    setQuestions(questions.map(q =>
-      q.id === questionId ? { ...q, [field]: value } : q
+  const handleQuestionChange = (index: number, field: keyof Question, value: string | number) => {
+    setQuestions(questions.map((q, i) =>
+      i === index ? { ...q, [field]: value } : q
     ))
   }
 
-  const handleOptionChange = (questionId: number, optionId: number, field: keyof Option, value: string) => {
-    setQuestions(questions.map(q =>
-      q.id === questionId ? {
+  const handleOptionChange = (questionIndex: number, optionIndex: number, field: keyof Option, value: string) => {
+    setQuestions(questions.map((q, qIndex) =>
+      qIndex === questionIndex ? {
         ...q,
-        options: q.options.map(o =>
-          o.id === optionId ? { ...o, [field]: value } : o
+        options: q.options.map((o, oIndex) =>
+          oIndex === optionIndex ? { ...o, [field]: value } : o
         )
       } : q
     ))
   }
 
   const addQuestion = () => {
-    const maxId = Math.max(0, ...questions.map(q => q.id))
     const newQuestion: Question = {
-      id: maxId + 1,
       questionText: '',
       defaultMark: '1',
       numberOfOptions: 0,
@@ -87,14 +85,13 @@ export default function EditQuiz() {
     setQuestions([...questions, newQuestion])
   }
 
-  const addOption = (questionId: number) => {
-    setQuestions(questions.map(q =>
-      q.id === questionId ? {
+  const addOption = (questionIndex: number) => {
+    setQuestions(questions.map((q, index) =>
+      index === questionIndex ? {
         ...q,
         options: [
           ...q.options,
           {
-            id: Math.max(0, ...q.options.map(o => o.id)) + 1,
             optionText: '',
             optionMark: '0'
           }
@@ -104,17 +101,17 @@ export default function EditQuiz() {
     ))
   }
 
-  const removeQuestion = (questionId: number) => {
-    setQuestions(questions.filter(q => q.id !== questionId))
+  const removeQuestion = (index: number) => {
+    setQuestions(questions.filter((_, i) => i !== index))
   }
 
-  const removeOption = (questionId: number, optionId: number) => {
-    setQuestions(questions.map(q =>
-      q.id === questionId ? {
+  const removeOption = (questionIndex: number, optionIndex: number) => {
+    setQuestions(questions.map((q, qIndex) =>
+      qIndex === questionIndex ? {
         ...q,
-        options: q.options.filter(o => o.id !== optionId),
+        options: q.options.filter((_, oIndex) => oIndex !== optionIndex),
         numberOfOptions: q.numberOfOptions - 1,
-        correctOptionID: q.correctOptionID === optionId ? 0 : q.correctOptionID
+        correctOptionID: q.correctOptionID === optionIndex + 1 ? 0 : q.correctOptionID
       } : q
     ))
   }
@@ -192,39 +189,39 @@ export default function EditQuiz() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-10 flex justify-center w-full mt-4">Edit Quiz</h1>
-      {Array.isArray(questions) && questions.length > 0 ? (
+      {questions.length > 0 ? (
         questions.map((question, index) => (
-          <div key={question.id} className="mb-8 p-4 border rounded-lg">
+          <div key={index} className="mb-8 p-4 border rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-semibold">Question {index + 1}</h2>
-              <Button variant="destructive" size="icon" onClick={() => removeQuestion(question.id)}>
+              <Button variant="destructive" size="icon" onClick={() => removeQuestion(index)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
             <Textarea
               value={question.questionText}
-              onChange={(e) => handleQuestionChange(question.id, 'questionText', e.target.value)}
+              onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
               placeholder="Enter question text"
               className="mb-2"
             />
             <div className="space-y-2 mt-4">
               {question.options.map((option, optionIndex) => (
-                <div key={option.id} className="flex items-center space-x-2">
+                <div key={optionIndex} className="flex items-center space-x-2">
                   <Label className="w-8">{`op ${optionIndex + 1}`}</Label>
                   <Input
                     value={option.optionText}
-                    onChange={(e) => handleOptionChange(question.id, option.id, 'optionText', e.target.value)}
+                    onChange={(e) => handleOptionChange(index, optionIndex, 'optionText', e.target.value)}
                     placeholder={`Option ${optionIndex + 1}`}
                     className="flex-grow"
                   />
                   <Input
                     type="number"
                     value={option.optionMark}
-                    onChange={(e) => handleOptionChange(question.id, option.id, 'optionMark', e.target.value)}
+                    onChange={(e) => handleOptionChange(index, optionIndex, 'optionMark', e.target.value)}
                     placeholder="Mark"
                     className="w-20"
                   />
-                  <Button variant="destructive" size="icon" onClick={() => removeOption(question.id, option.id)}>
+                  <Button variant="destructive" size="icon" onClick={() => removeOption(index, optionIndex)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -234,14 +231,14 @@ export default function EditQuiz() {
               <Label>correct op</Label>
               <Select
                 value={question.correctOptionID.toString()}
-                onValueChange={(value) => handleQuestionChange(question.id, 'correctOptionID', parseInt(value))}
+                onValueChange={(value) => handleQuestionChange(index, 'correctOptionID', parseInt(value))}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select correct option" />
                 </SelectTrigger>
                 <SelectContent>
-                  {question.options.map((option, optionIndex) => (
-                    <SelectItem key={option.id} value={option.id.toString()}>
+                  {question.options.map((_, optionIndex) => (
+                    <SelectItem key={optionIndex} value={(optionIndex + 1).toString()}>
                       Option {optionIndex + 1}
                     </SelectItem>
                   ))}
@@ -249,13 +246,13 @@ export default function EditQuiz() {
               </Select>
             </div>
             <div className="mt-4 flex justify-between items-center">
-              <Button onClick={() => addOption(question.id)}>
+              <Button onClick={() => addOption(index)}>
                 <PlusCircle className="h-4 w-4 mr-2" /> Add Option
               </Button>
               <Input
                 type="number"
                 value={question.defaultMark}
-                onChange={(e) => handleQuestionChange(question.id, 'defaultMark', e.target.value)}
+                onChange={(e) => handleQuestionChange(index, 'defaultMark', e.target.value)}
                 placeholder="Default mark"
                 className="w-32"
               />

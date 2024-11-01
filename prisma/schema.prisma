@@ -27,7 +27,7 @@ model Student {
   role          Role              @default(STUDENT)
   courses       CourseOfStudent[]
   teachers      StudentTeacher[]
-  attempts?     Attempt[]
+  attempts     Attempt[]
 }
 
 model Course {

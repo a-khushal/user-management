@@ -96,3 +96,47 @@ try{
     return {}
 }
 }
+
+export async function getStudentAttemptDetails({usn}:{usn:string}){
+    try{
+        const attempts=await db.attempt.findMany({
+            where:{
+                usn:usn
+            },
+            select:{
+                quizId:true,
+                marksObtained:true,
+                totalMarks:true
+            }
+        })
+        if(attempts){
+            const quizids=attempts.map(attempt=>attempt.quizId);
+            const quizzes= await db.quiz.findMany({
+                where:{
+                    id:{in:quizids}
+                },include:{
+                    course:true
+                }
+            })
+            const data=quizzes.map(quiz=>{
+                const attempt=attempts.find(attempt=>attempt.quizId===quiz.id);
+                if(attempt){
+                    return{
+                        id:quiz.id,
+                        name:quiz.title,
+                        marksObtained:attempt.marksObtained,
+                        totalMarks:attempt.totalMarks,
+                        courseId:quiz.courseId,
+                        course:quiz.course.title
+                    };
+                }
+                return undefined
+            }).filter(Boolean)
+            console.log(data)
+            return data;
+        }
+    }catch(error){
+        console.log("error")
+        return [];
+    }
+}

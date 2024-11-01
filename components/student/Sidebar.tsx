@@ -347,11 +347,11 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
   const handleClick = (id: string, usn: string) => {
     router.push(`dashboard`)
   }
-  const isExpired = ({ quizId, quizDate, quizTime, attempted }: { quizId: number, quizDate: Date, quizTime: Date, attempted: boolean }) => {
+  const isExpired = ({ quizId, quizDate, quizTime, attempted,expired }: { quizId: number, quizDate: Date, quizTime: Date, attempted: boolean,expired:boolean }) => {
     const endtime = new Date(quizDate)
     endtime.setTime(quizTime.getTime())
     const now = new Date();
-    const expired = now > endtime
+
     //console.log(usn)
     return (
       <div>
@@ -474,7 +474,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Duration: {quiz.duration} minutes</p>
                       <div>
-                        {isExpired({ quizId: quiz.id, quizDate: quiz.date, quizTime: quiz.endTime, attempted: attempted })}
+                        {isExpired({ quizId: quiz.id, quizDate: quiz.date, quizTime: quiz.endTime, attempted: attempted,expired:quiz.expired })}
                       </div>
                     </li>
                     )
