@@ -345,7 +345,7 @@ const CoursesCard = ({ extractedCourses, name, usn, branch }: { extractedCourses
   const [attempts,setAttempts]=useState<Attempt[]>([]);
   const options: Intl.DateTimeFormatOptions = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const handleClick = (id: string, usn: string) => {
-    router.push(`dashboard`)
+    router.push(`dashboard/${usn}`)
   }
   const isExpired = ({ quizId, quizDate, quizTime, attempted,expired }: { quizId: number, quizDate: Date, quizTime: Date, attempted: boolean,expired:boolean }) => {
     const endtime = new Date(quizDate)

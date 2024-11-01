@@ -132,7 +132,7 @@ export async function getStudentAttemptDetails({usn}:{usn:string}){
                 }
                 return undefined
             }).filter(Boolean)
-            console.log(data)
+
             return data;
         }
     }catch(error){

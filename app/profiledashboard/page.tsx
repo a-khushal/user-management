@@ -3,12 +3,7 @@
 import SubjectsDashboard from "@/components/student/subjects-dashboard"
 import { getStudentAttemptDetails } from "@/actions/saveAttempt"
 import { useEffect,useState } from "react"
-const sampleData = [
-  { id: "CS241AT", name: "Discrete Mathematics", score: 85, totaltests: 10, date: "2023-11-15" },
-  { id: "CY245AT", name: "Computer Networks ", score: 78, totaltests: 8, date: "2023-11-10" },
-  { id: "CS344AI", name: "IOT and Embedded computing", score: 92, totaltests: 9, date: "2023-11-18" },
-  { id: "HS248XT", name: "Universal Human Values", score: 88, totaltests: 7, date: "2023-11-12" }
-]
+import { useParams } from "next/navigation"
 
 
 interface TestDetail {
@@ -21,10 +16,12 @@ interface TestDetail {
 }
 
 export default function Page() {
+  const {usn}=useParams();
   const [subjects,setSubjects]=useState<TestDetail[]>([]);
+  console.log(typeof(usn))
   useEffect(()=>{
     const getData= async ()=>{
-      const data=await getStudentAttemptDetails({usn:"fjdaslkhf2"})
+      const data=await getStudentAttemptDetails({usn:usn})
       console.log(data)
       if(data){
         setSubjects(data as TestDetail[]);
